@@ -1,0 +1,307 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { cn, formatPrice } from "@/lib/utils";
+import { ProductForm } from "./product-form";
+
+interface Product {
+  id: string;
+  title: string;
+  slug: string;
+  price: number;
+  discountedPrice: number | null;
+  size: string | null;
+  category: string | null;
+  condition: string | null;
+  gender: string | null;
+  details: string[];
+  images: string[];
+  status: string;
+  createdAt: Date | string;
+}
+
+export function ProductList({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this product?")) return;
+    setLoading(id);
+    try {
+      const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed");
+      router.refresh();
+    } catch {
+      alert("Failed to delete product");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleMarkSold(id: string) {
+    setLoading(id);
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "sold" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      router.refresh();
+    } catch {
+      alert("Failed to update status");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  async function handleMarkAvailable(id: string) {
+    setLoading(id);
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "available" }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      router.refresh();
+    } catch {
+      alert("Failed to update status");
+    } finally {
+      setLoading(null);
+    }
+  }
+
+  function handleSaved() {
+    setEditing(null);
+    setShowForm(false);
+    router.refresh();
+  }
+
+  return (
+    <div>
+      {/* Toolbar */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        <button
+          onClick={() => {
+            setEditing(null);
+            setShowForm(true);
+          }}
+          className="btn-primary text-sm"
+        >
+          + Add New Product
+        </button>
+      </div>
+
+      {/* Form panel */}
+      {showForm && (
+        <div className="border-steel-gray bg-dark-grey mb-6 rounded border p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-light-grey font-hero text-lg font-bold">
+              {editing ? "Edit Product" : "Add New Product"}
+            </h2>
+            <button
+              onClick={() => {
+                setShowForm(false);
+                setEditing(null);
+              }}
+              className="text-steel-gray hover:text-light-grey transition-colors"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <ProductForm product={editing} onSaved={handleSaved} />
+        </div>
+      )}
+
+      {/* Desktop table */}
+      <div className="border-steel-gray bg-dark-grey hidden overflow-x-auto rounded border lg:block">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-steel-gray text-steel-gray border-b text-xs uppercase">
+              <th className="p-3">Image</th>
+              <th className="p-3">Title</th>
+              <th className="p-3">Price</th>
+              <th className="p-3">Size</th>
+              <th className="p-3">Category</th>
+              <th className="p-3">Status</th>
+              <th className="p-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {products.length === 0 && (
+              <tr>
+                <td colSpan={7} className="text-steel-gray p-8 text-center">
+                  No products yet.
+                </td>
+              </tr>
+            )}
+            {products.map((p) => (
+              <tr key={p.id} className="border-steel-gray/50 border-b last:border-0">
+                <td className="p-3">
+                  {p.images[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={p.images[0]}
+                      alt={p.title}
+                      className="h-12 w-12 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="bg-ink-black text-steel-gray flex h-12 w-12 items-center justify-center rounded text-xs">
+                      N/A
+                    </div>
+                  )}
+                </td>
+                <td className="text-light-grey max-w-[200px] truncate p-3 font-medium">
+                  {p.title}
+                </td>
+                <td className="text-light-grey p-3">{formatPrice(p.price)}</td>
+                <td className="text-light-grey p-3">{p.size ?? "\u2014"}</td>
+                <td className="text-light-grey p-3">{p.category ?? "\u2014"}</td>
+                <td className="p-3">
+                  <span
+                    className={cn(
+                      "inline-block rounded px-2 py-0.5 text-xs font-medium",
+                      p.status === "available"
+                        ? "bg-green-900/40 text-green-400"
+                        : "bg-signal-red/20 text-signal-red",
+                    )}
+                  >
+                    {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                  </span>
+                </td>
+                <td className="p-3">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditing(p);
+                        setShowForm(true);
+                      }}
+                      disabled={loading === p.id}
+                      className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                    >
+                      Edit
+                    </button>
+                    {p.status === "available" ? (
+                      <button
+                        onClick={() => handleMarkSold(p.id)}
+                        disabled={loading === p.id}
+                        className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                      >
+                        Sold
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleMarkAvailable(p.id)}
+                        disabled={loading === p.id}
+                        className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                      >
+                        Unsold
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDelete(p.id)}
+                      disabled={loading === p.id}
+                      className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="flex flex-col gap-3 lg:hidden">
+        {products.length === 0 && (
+          <p className="border-steel-gray bg-dark-grey text-steel-gray rounded border p-8 text-center">
+            No products yet.
+          </p>
+        )}
+        {products.map((p) => (
+          <div key={p.id} className="border-steel-gray bg-dark-grey flex gap-3 rounded border p-3">
+            {p.images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={p.images[0]}
+                alt={p.title}
+                className="h-16 w-16 shrink-0 rounded object-cover"
+              />
+            ) : (
+              <div className="bg-ink-black text-steel-gray flex h-16 w-16 shrink-0 items-center justify-center rounded text-xs">
+                N/A
+              </div>
+            )}
+            <div className="min-w-0 flex-1">
+              <p className="text-light-grey truncate font-medium">{p.title}</p>
+              <p className="text-light-grey text-sm">{formatPrice(p.price)}</p>
+              <div className="text-steel-gray mt-1 flex flex-wrap items-center gap-2 text-xs">
+                {p.size && <span>{p.size}</span>}
+                {p.category && <span>{p.category}</span>}
+                <span
+                  className={cn(
+                    "rounded px-1.5 py-0.5",
+                    p.status === "available"
+                      ? "bg-green-900/40 text-green-400"
+                      : "bg-steel-gray/30 text-steel-gray",
+                  )}
+                >
+                  {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
+                </span>
+              </div>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    setEditing(p);
+                    setShowForm(true);
+                  }}
+                  disabled={loading === p.id}
+                  className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                >
+                  Edit
+                </button>
+                {p.status === "available" ? (
+                  <button
+                    onClick={() => handleMarkSold(p.id)}
+                    disabled={loading === p.id}
+                    className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                  >
+                    Sold
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleMarkAvailable(p.id)}
+                    disabled={loading === p.id}
+                    className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                  >
+                    Unsold
+                  </button>
+                )}
+                <button
+                  onClick={() => handleDelete(p.id)}
+                  disabled={loading === p.id}
+                  className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,89 @@
+# MidRange — Gen-Z Thrift Store
+
+## Project Overview
+A full e-commerce website for a Gen-Z thrift clothing store called **MidRange**. Built with Next.js App Router, TypeScript, Tailwind CSS, Prisma, PostgreSQL, Cloudinary, Razorpay, and Clerk.
+
+## Tech Stack Constraints
+- **Next.js App Router only** — no Pages Router patterns
+- **Tailwind CSS** for all styling — no separate CSS files except global resets/fonts, no CSS-in-JS
+- **PostgreSQL via Prisma** — no raw SQL unless Prisma cannot express the query (comment why)
+- **Server Components by default** — use `"use client"` only where interactivity is needed
+- **TypeScript strict mode** — no `any` unless truly unavoidable (comment why)
+- **No animation libraries** (Framer Motion, GSAP) — vanilla CSS transforms + IntersectionObserver + JS timing only
+
+## Code Conventions
+- **Files**: kebab-case for file names (e.g. `product-card.tsx`)
+- **Components**: PascalCase for component names (e.g. `ProductCard`)
+- **One component per file** for reusable components in `components/`
+- **Page-specific composition** lives in the route's `page.tsx`
+- **Environment variables**: never hardcode secrets. All secrets in `.env.local`, referenced via `process.env`. Add new required vars to `.env.example`
+- **Barrel exports** (`index.ts`) are forbidden — import from the specific file directly
+
+## Data & Money Handling
+- All prices stored in **paise** (smallest currency unit), converted to rupees only for display
+- Razorpay payment verification **MUST** happen server-side via signature check
+- Any schema change goes through a Prisma migration — never edit the database manually
+
+## Design System
+- **Colors**: Light Grey (#D8D8D6), Dark Grey (#2B2B2B), Ink Black (#0A0A0A), Signal Red (#E11D2E), Steel Gray (#6B6B6B)
+- **No white, no off-white** — grayscale + one accent red
+- **Background**: Full-page radial vignette (Light Grey center → Dark Grey edges)
+- **Fonts**: Space Grotesk (body/UI) + Spy Agency family (hero/badges/marquee ONLY — no ₹ glyph, never for prices or dynamic content)
+- **Mobile-first**: design for 375–414px viewport first, scale up
+
+## Animation Rules
+- Scroll-reveal: `IntersectionObserver` + CSS transitions, trigger once per element
+- Marquee: CSS `@keyframes` only, not JS-driven
+- Parallax: CSS `animation-timeline: scroll()` or throttled `requestAnimationFrame`
+- Preloader: vanilla CSS 3D transforms + localStorage, runs once per browser
+- Hero carousel: autoplay 3D coverflow, no user interaction, 3.5s interval
+- **All animations must respect `prefers-reduced-motion`**
+
+## API Routes
+- Validate all inputs with **Zod** schemas before processing
+- Return consistent error responses: `{ error: string, details?: unknown }`
+- Use NextResponse for all API route responses
+
+## Testing
+- Unit/Integration: Jest + Testing Library (components in `__tests__/`, `*.test.tsx`)
+- E2E: Playwright (tests in `tests/` directory, `*.spec.ts`)
+- Test Zod schemas for validation logic
+- Test API routes with mocked Prisma calls
+
+## Git Conventions
+- Commit messages: short, present tense (`add product admin form`)
+- Never commit `.env` files or API keys
+- Feature branches for anything beyond a trivial fix
+
+## Component Patterns
+- Use `cn()` utility from `@/lib/utils` for conditional class merging
+- Product cards: image-forward, minimal text, Signal Red badges
+- Buttons: Signal Red fill, Ink Black text, 4px border-radius
+- Cards sit on slightly distinct grey from the page vignette (not white)
+
+## Frontend Design Principles (anthropics/skills@frontend-design)
+- Every design choice must be specific to MidRange — never generic defaults
+- Hero is a thesis: open with the most characteristic thing about this store
+- Typography carries personality: Spy Agency (display/restraint) + Space Grotesk (body)
+- Structure encodes information, not decoration — no numbered markers unless sequential
+- Motion is deliberate: orchestrated moments, not scattered effects
+- Restraint: boldness in ONE place (the hero/carousel), everything else quiet
+- Copy: active voice, plain verbs, sentence case, no filler, brand-specific tone
+- Write from the user's side — "what you see ships to you" not "high-quality imagery"
+- Errors explain what happened and how to fix it, never vague
+- Empty states are invitations to act, not dead ends
+- Self-critique: if a section reads like it could belong to any e-commerce site, rewrite it
+
+## File Structure
+```
+app/(storefront)/    → Customer-facing routes
+app/admin/           → Admin panel routes (Clerk-gated)
+app/api/             → API routes
+components/ui/       → Reusable UI primitives
+components/storefront/ → Storefront-specific components
+components/admin/    → Admin-specific components
+lib/                 → Shared utilities and configs
+prisma/              → Database schema and migrations
+tests/               → Playwright E2E tests
+__tests__/           → Jest unit/integration tests
+```

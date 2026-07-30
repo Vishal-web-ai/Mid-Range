@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  price           Int      // stored in paise (smallest currency unit)
+  discountedPrice Int?     // stored in paise
+  size            String?  // numeric string e.g. "42"
+  category        String?
+  condition       String?  // rating 1/10 - 10/10
+  gender          String?  // men | women
+  details         String[] // product detail bullet points
+  images          String[] // array of image URLs
+  status          String   @default("available") // available | sold
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orderItems      OrderItem[]
+  wishlists       Wishlist[]
+  featured        Boolean  @default(false)
+
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  buyerName       String
+  buyerPhone      String
+  buyerAddress    String
+  totalAmount     Int         // stored in paise
+  razorpayOrderId String?
+  paymentStatus   String      @default("pending") // pending | paid | failed
+  orderStatus     String      @default("placed")  // placed | shipped | delivered
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+
+  @@index([razorpayOrderId])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  price     Int     // price at time of purchase, in paise
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model SiteSettings {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+
+  @@index([key])
+}
+
+model RoundCarouselImage {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([active])
+}
+
+model SaleSectionImage {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  altText   String   @default("")
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([active])
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  imageUrl  String?
+  text      String
+  rating    Int      @default(5)
+  order     Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([order])
+  @@index([active])
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  visitorId String
+  productId String
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([visitorId, productId])
+  @@index([visitorId])
+}
