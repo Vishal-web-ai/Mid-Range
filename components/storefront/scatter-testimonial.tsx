@@ -153,16 +153,20 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
   });
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<TestimonialData | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const cardBoundsRef = useRef<DOMRect | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
   const tlRef = useRef<gsap.core.Timeline | null>(null);
+  const isNavRef = useRef(false);
 
   const openCard = useCallback((t: TestimonialData, i: number) => {
     const card = cardRefs.current[i];
-    if (!card) { setSelected(t); return; }
+    if (!card) { setSelected(t); setSelectedIndex(i); return; }
     cardBoundsRef.current = card.getBoundingClientRect();
+    isNavRef.current = false;
     setSelected(t);
+    setSelectedIndex(i);
   }, []);
 
   const hoverTweenRef = useRef<gsap.core.Tween | null>(null);
@@ -198,62 +202,94 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
     });
   }, [isMobile, testimonials]);
 
+  const goTo = useCallback((i: number) => {
+    const t = testimonials[i];
+    if (!t) return;
+    isNavRef.current = true;
+    if (popupRef.current) {
+      gsap.to(popupRef.current.querySelector(".popup-content"), {
+        opacity: 0, duration: 0.15, onComplete: () => {
+          setSelectedIndex(i);
+          setSelected(t);
+        }
+      });
+    } else {
+      setSelectedIndex(i);
+      setSelected(t);
+    }
+  }, [testimonials]);
+
   const closeCard = useCallback(() => {
     if (tlRef.current) {
       tlRef.current.reverse();
       tlRef.current.eventCallback("onReverseComplete", () => {
+        if (overlayRef.current) {
+          overlayRef.current.style.visibility = "hidden";
+          overlayRef.current.style.opacity = "0";
+        }
         setSelected(null);
         tlRef.current = null;
       });
     } else {
+      if (overlayRef.current) {
+        overlayRef.current.style.visibility = "hidden";
+        overlayRef.current.style.opacity = "0";
+      }
       setSelected(null);
     }
   }, []);
 
   useEffect(() => {
     if (!selected || !overlayRef.current || !popupRef.current) return;
-    const bounds = cardBoundsRef.current;
-    if (!bounds) return;
 
     const overlay = overlayRef.current;
     const popup = popupRef.current;
 
-    gsap.set(overlay, { autoAlpha: 1 });
+    if (isNavRef.current) {
+      isNavRef.current = false;
+      gsap.to(popup.querySelector(".popup-content"), { opacity: 1, duration: 0.25 });
+      return;
+    }
+
+    const bounds = cardBoundsRef.current;
+    if (!bounds) return;
+
+    const cx = bounds.left + bounds.width / 2;
+    const cy = bounds.top + bounds.height / 2;
+
     gsap.set(popup, {
       position: "fixed",
-      top: bounds.top,
-      left: bounds.left,
-      width: bounds.width,
-      height: bounds.height,
+      top: cy, left: cx,
+      xPercent: -50, yPercent: -50,
+      width: bounds.width, height: bounds.height,
       margin: 0,
-      scaleX: 1,
-      scaleY: 1,
-      opacity: 1,
       transformOrigin: "center center",
-      borderRadius: "20px",
-      padding: "0",
+      borderRadius: "20px", padding: "0",
+      scale: 0.4, opacity: 0,
     });
 
-    const tl = gsap.timeline();
+    const tl = gsap.timeline({ onStart: () => { overlay.style.visibility = "visible"; } });
+    tl.to(overlay, { opacity: 1, duration: 0.25 }, 0);
     tl.to(popup, {
-      top: "50%",
-      left: "50%",
-      xPercent: -50,
-      yPercent: -50,
-      width: "100%",
-      maxWidth: "448px",
-      height: "auto",
-      padding: "1.5rem",
-      borderRadius: "16px",
-      duration: 0.4,
-      ease: "power3.out",
+      top: "50%", left: "50%",
+      width: "100%", maxWidth: "448px", height: "auto",
+      scale: 1, opacity: 1,
+      padding: "1.5rem", borderRadius: "16px",
+      duration: 0.5, ease: "back.out(1.7)",
     }, 0);
-    tl.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 0);
-    tl.to(popup.querySelectorAll(".popup-content > *"), { autoAlpha: 1, y: 0, duration: 0.25, stagger: 0.04 }, "-=0.1");
+    tl.to(popup.querySelector(".popup-content"), { opacity: 1, duration: 0.3 }, "-=0.15");
 
     tlRef.current = tl;
 
-    return () => { tl.kill(); tlRef.current = null; };
+    return () => {
+      if (isNavRef.current) return;
+      tl.kill();
+      tlRef.current = null;
+      if (overlayRef.current) {
+        overlayRef.current.style.visibility = "hidden";
+        overlayRef.current.style.opacity = "0";
+      }
+    };
   }, [selected]);
 
   useEffect(() => {
@@ -441,48 +477,76 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
         style={{ visibility: "hidden", opacity: 0 }}
       >
         <div className="absolute inset-0 bg-black/70" onClick={closeCard} />
+
+        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+          {selectedIndex > 0 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goTo(selectedIndex - 1); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-opacity hover:opacity-70"
+              aria-label="Previous"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+          )}
+          {selectedIndex < testimonials.length - 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); goTo(selectedIndex + 1); }}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-opacity hover:opacity-70"
+              aria-label="Next"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          )}
+        </div>
+
         <div
           ref={popupRef}
-          className="bg-dark-grey relative"
+          className="relative"
           style={{ overflow: "hidden" }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            onClick={closeCard}
-            className="text-steel-gray hover:text-light-grey absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
-            aria-label="Close"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          {selected && (
+            <>
+              <button
+                onClick={closeCard}
+                className="absolute top-8 right-8 z-10 flex h-6 w-6 items-center justify-center transition-opacity hover:opacity-70"
+                aria-label="Close"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#000000" strokeWidth="3" className="h-5 w-5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
 
-          <div className="popup-content" style={{ opacity: 0 }}>
-            {selected && (
-              <>
-                <StarRating count={selected.rating} />
-                <p className="mb-6 mt-4 text-sm leading-relaxed sm:text-base">
-                  &ldquo;{selected.text}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
-                    {selected.imageUrl ? (
-                      <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
-                    ) : (
-                      selected.avatar
-                    )}
-                  </div>
-                  <div className="flex flex-col">
-                    <p className="text-sm font-semibold">{selected.name}</p>
-                    <p className={`${selected.verifiedColor} text-[10px] tracking-[0.5px] uppercase`}>
-                      Verified Customer
-                    </p>
+              <div className={`popup-content ${selected.cardClass} rounded-2xl`}>
+                <div className="p-6 sm:p-8">
+                  <StarRating count={selected.rating} />
+                  <p className="mb-6 mt-4 text-sm leading-relaxed sm:text-base">
+                    &ldquo;{selected.text}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
+                      {selected.imageUrl ? (
+                        <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
+                      ) : (
+                        selected.avatar
+                      )}
+                    </div>
+                    <div className="flex flex-col">
+                      <p className="text-sm font-semibold">{selected.name}</p>
+                      <p className={`${selected.verifiedColor} text-[10px] tracking-[0.5px] uppercase`}>
+                        Verified Customer
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </>
-            )}
-          </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>

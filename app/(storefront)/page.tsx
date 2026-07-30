@@ -101,12 +101,10 @@ export const metadata: Metadata = {
 };
 
 const HERO_HEADINGS = [
-  { text: "F*ck fast fashion.", delay: 2 },
-  { text: "Wear something", delay: 3, className: "text-red-gradient" },
-  { text: "with a history.", delay: 4 },
+  { text: "F*ck fast fashion." },
+  { text: "Wear something", className: "text-red-gradient" },
+  { text: "with a history." },
 ];
-const HERO_WORD_STAGGER = 0.06;
-const HERO_BUTTON_DELAY = 5;
 
 function HeroHeading() {
   return (
@@ -117,21 +115,27 @@ function HeroHeading() {
           className="flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92]"
           style={{ fontSize: "clamp(2.2rem, 5vw + 0.4rem, 5.5rem)" }}
         >
-          {HERO_HEADINGS.map((line, lineIndex) => (
-            <span key={lineIndex} style={{ display: "block" }}>
-              {line.text.split(" ").map((word, wordIndex, arr) => (
-                <span
-                  key={wordIndex}
-                  className={`hero-word ${line.className ?? ""}`}
-                  style={{ "--hero-delay": `${line.delay + wordIndex * HERO_WORD_STAGGER}s` } as React.CSSProperties}
-                >
-                  {word}{wordIndex < arr.length - 1 ? "\u00A0" : ""}
-                </span>
-              ))}
-            </span>
-          ))}
+          {(() => {
+            let wi = 0;
+            return HERO_HEADINGS.map((line, lineIndex) => (
+              <span key={lineIndex} style={{ display: "block" }}>
+                {line.text.split(" ").map((word, wordIndex, arr) => {
+                  const d = 0.3 + wi++ * 0.04;
+                  return (
+                    <span
+                      key={wordIndex}
+                      className={`hero-word ${line.className ?? ""}`}
+                      style={{ "--hero-delay": `${d}s` } as React.CSSProperties}
+                    >
+                      {word}{wordIndex < arr.length - 1 ? "\u00A0" : ""}
+                    </span>
+                  );
+                })}
+              </span>
+            ));
+          })()}
         </h1>
-        <div className="mt-6 pointer-events-auto hero-word" style={{ "--hero-delay": `${HERO_BUTTON_DELAY}s` } as React.CSSProperties}>
+        <div className="mt-6 pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
           <Link href="/collections" className="btn-primary font-hero text-sm md:text-[17px]">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
@@ -148,21 +152,27 @@ function HeroHeading() {
           className="flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92] hero-mobile"
           style={{ fontSize: "clamp(1.8rem, 8vw, 2.6rem)" }}
         >
-          {HERO_HEADINGS.map((line, lineIndex) => (
-            <span key={lineIndex} style={{ display: "block" }}>
-              {line.text.split(" ").map((word, wordIndex, arr) => (
-                <span
-                  key={wordIndex}
-                  className={`hero-word ${line.className ?? ""}`}
-                  style={{ "--hero-delay": `${line.delay + wordIndex * HERO_WORD_STAGGER}s` } as React.CSSProperties}
-                >
-                  {word}{wordIndex < arr.length - 1 ? "\u00A0" : ""}
-                </span>
-              ))}
-            </span>
-          ))}
+          {(() => {
+            let wi = 0;
+            return HERO_HEADINGS.map((line, lineIndex) => (
+              <span key={lineIndex} style={{ display: "block" }}>
+                {line.text.split(" ").map((word, wordIndex, arr) => {
+                  const d = 0.3 + wi++ * 0.04;
+                  return (
+                    <span
+                      key={wordIndex}
+                      className={`hero-word ${line.className ?? ""}`}
+                      style={{ "--hero-delay": `${d}s` } as React.CSSProperties}
+                    >
+                      {word}{wordIndex < arr.length - 1 ? "\u00A0" : ""}
+                    </span>
+                  );
+                })}
+              </span>
+            ));
+          })()}
         </h1>
-        <div className="mt-5 pointer-events-auto hero-word" style={{ "--hero-delay": `${HERO_BUTTON_DELAY}s` } as React.CSSProperties}>
+        <div className="mt-5 pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
           <Link href="/collections" className="btn-primary font-hero max-[425px]:text-xs max-[425px]:px-3 max-[425px]:py-1.5 text-sm">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">

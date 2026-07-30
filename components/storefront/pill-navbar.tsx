@@ -18,6 +18,7 @@ export default function PillNavbar() {
   const { getItemCount } = useCart();
   const [count, setCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
     setCount(getItemCount());
@@ -27,9 +28,22 @@ export default function PillNavbar() {
     setMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    let lastY = 0;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y <= 0) { setHidden(false); lastY = 0; return; }
+      setHidden(y > lastY);
+      lastY = y;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <>
-      <nav className="sticky top-0 z-50 w-full">
+      <nav className={`sticky top-0 z-50 w-full transition-transform duration-300 ${hidden ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="container-storefront relative flex h-12 items-center sm:h-14">
           <Link
             href="/"

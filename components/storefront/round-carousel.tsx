@@ -74,6 +74,9 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   }, []);
 
   useEffect(() => {
+    const nav = performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type === "reload") sessionStorage.removeItem("midrange-hero-seen");
+
     if (sessionStorage.getItem("midrange-hero-seen")) {
       const total = images.length;
       cardsRef.current.forEach((card, i) => {

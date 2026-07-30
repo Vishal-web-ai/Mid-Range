@@ -33,12 +33,7 @@ export default function ProductGrid({ products }: { products: ProductRow[] }) {
                 Latest <span className="text-signal-red">Drops</span>
               </h2>
             </div>
-            <a
-              href="/collections"
-              className="font-hero text-steel-gray hover:text-light-grey text-xs tracking-widest uppercase transition-colors"
-            >
-              View all
-            </a>
+
           </div>
           <div className="grid grid-cols-2 gap-1 sm:gap-2 md:grid-cols-3 lg:grid-cols-4">
             {products.map((product, i) => (
