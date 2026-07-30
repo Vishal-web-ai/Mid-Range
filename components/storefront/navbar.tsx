@@ -25,7 +25,7 @@ export default function Navbar() {
             MidRange
           </Link>
 
-          <div className="absolute left-1/2 hidden -translate-x-1/2 items-center justify-center gap-3 sm:flex sm:gap-4 md:gap-5">
+          <div className="absolute left-1/2 hidden -translate-x-1/2 items-center justify-center gap-3 sm:flex sm:gap-4 md:gap-5 max-[770px]:left-[calc(50%+12px)]">
             {menuItems.map((item) => (
               <Link
                 key={item.label}

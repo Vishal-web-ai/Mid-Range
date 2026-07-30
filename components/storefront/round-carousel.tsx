@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 
@@ -38,7 +38,6 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   const rxRef = useRef(400);
   const ryRef = useRef(250);
   const rafRef = useRef<number>(0);
-  const dragRef = useRef({ active: false, lastX: 0 });
   const [cardSize, setCardSize] = useState(260);
   const [orbitReady, setOrbitReady] = useState(false);
 
@@ -158,9 +157,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
 
     function loop() {
       if (cancelled) return;
-      if (!dragRef.current.active) {
-        angleRef.current += velocityRef.current * (Math.PI / 180);
-      }
+      angleRef.current += velocityRef.current * (Math.PI / 180);
 
       cardsRef.current.forEach((card, i) => {
         if (!card || cancelled) return;
@@ -189,30 +186,9 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
     };
   }, [orbitReady]);
 
-  const onPointerDown = useCallback((e: React.PointerEvent) => {
-    dragRef.current = { active: true, lastX: e.clientX };
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
-
-  const onPointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragRef.current.active) return;
-    const dx = e.clientX - dragRef.current.lastX;
-    dragRef.current.lastX = e.clientX;
-    angleRef.current -= dx * 0.008;
-  }, []);
-
-  const onPointerUp = useCallback(() => {
-    dragRef.current.active = false;
-  }, []);
-
   return (
     <div
-      className="absolute inset-0 z-10"
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
-      style={{ touchAction: "none" }}
+      className="absolute inset-0 z-10 pointer-events-none select-none"
       suppressHydrationWarning
     >
       <div className="relative h-full w-full" style={{ perspective: "600px" }}>

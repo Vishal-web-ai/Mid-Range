@@ -110,12 +110,12 @@ const HERO_BUTTON_DELAY = 5;
 
 function HeroHeading() {
   return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center pointer-events-none max-[443px]:-translate-y-[4em] -translate-y-[3em]">
+    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center pointer-events-none max-[443px]:-translate-y-[5.5em] -translate-y-[4.5em]">
       {/* Desktop */}
       <div className="hidden min-[443px]:flex flex-col items-center">
         <h1
           className="flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92]"
-          style={{ fontSize: "clamp(2.2rem, 5vw + 0.5rem, 5.5rem)" }}
+          style={{ fontSize: "clamp(2.2rem, 5vw + 0.4rem, 5.5rem)" }}
         >
           {HERO_HEADINGS.map((line, lineIndex) => (
             <span key={lineIndex} style={{ display: "block" }}>
@@ -132,7 +132,7 @@ function HeroHeading() {
           ))}
         </h1>
         <div className="mt-6 pointer-events-auto hero-word" style={{ "--hero-delay": `${HERO_BUTTON_DELAY}s` } as React.CSSProperties}>
-          <Link href="/collections" className="btn-primary font-hero text-sm sm:text-base">
+          <Link href="/collections" className="btn-primary font-hero text-sm md:text-[17px]">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
               <line x1="5" y1="12" x2="19" y2="12" />

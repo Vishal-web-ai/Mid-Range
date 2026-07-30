@@ -233,11 +233,12 @@
     scroll-behavior: auto !important;
   }
 }
+.hero-mobile { top: 3em; }
 
+@media (max-width: 443px) { .hero-mobile { top: 2.5em; } }
 
-.hero-mobile { top: 4em; }
-@media (max-width: 443px) { .hero-mobile { top: 3.5em; } }
-@media (max-width: 352px) { .hero-mobile { top: 2.5em; } }
+@media (max-width: 352px) { .hero-mobile { top: 1.5em; } }
+
 
 .about-section-hero { margin-top: -2rem; }
 @media (min-width: 800px) { .about-section-hero { margin-top: 2em; } }
@@ -305,5 +306,20 @@
 .hero-animation-done .hero-word {
   opacity: 1;
   animation: none;
+}
+
+@media (max-width: 770px) {
+  .nav-link {
+    font-size: 12px !important;
+  }
+}
+
+@media (max-width: 443px) {
+  .hero-mobile {
+    font-size: 2rem !important;
+  }
+  .btn-primary {
+    font-size: 0.75rem !important;
+  }
 }
 
