@@ -27,7 +27,7 @@ export default function HeroCarousel({ initialCarouselImages }: { initialCarouse
         radiusStep={isMobile ? 0.08 : 0.15}
         lineThickness={isMobile ? 2 : 3}
         rotation={isMobile ? 90 : 0}
-        className="absolute inset-0 z-[1]"
+        className="absolute inset-0 z-[1] pointer-events-none"
       />
 
       <RoundCarousel initialImages={initialCarouselImages} />
