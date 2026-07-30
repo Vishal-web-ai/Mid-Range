@@ -111,7 +111,6 @@ const fallbackTestimonials: TestimonialData[] = [
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
-  const [selected, setSelected] = useState<TestimonialData | null>(null);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
     check();
@@ -153,6 +152,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
     return fallbackTestimonials;
   });
   const isMobile = useIsMobile();
+  const [selected, setSelected] = useState<TestimonialData | null>(null);
 
   useEffect(() => {
     if (initialTestimonials) return;
@@ -333,7 +333,6 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
             </div>
           ))}
         </div>
-      </div>
       </div>
 
       {selected && (
