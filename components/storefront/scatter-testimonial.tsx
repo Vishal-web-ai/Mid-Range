@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollReveal from "@/components/ui/scroll-reveal";
@@ -153,6 +153,108 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
   });
   const isMobile = useIsMobile();
   const [selected, setSelected] = useState<TestimonialData | null>(null);
+  const cardBoundsRef = useRef<DOMRect | null>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const tlRef = useRef<gsap.core.Timeline | null>(null);
+
+  const openCard = useCallback((t: TestimonialData, i: number) => {
+    const card = cardRefs.current[i];
+    if (!card) { setSelected(t); return; }
+    cardBoundsRef.current = card.getBoundingClientRect();
+    setSelected(t);
+  }, []);
+
+  const hoverTweenRef = useRef<gsap.core.Tween | null>(null);
+
+  const handleHoverEnter = useCallback((i: number) => {
+    const card = cardRefs.current[i];
+    if (!card) return;
+    hoverTweenRef.current?.kill();
+    hoverTweenRef.current = gsap.to(card, {
+      scale: 1.08,
+      rotation: 0,
+      zIndex: 50,
+      boxShadow: "0 25px 50px -12px rgba(0,0,0,0.4)",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  }, []);
+
+  const handleHoverLeave = useCallback((i: number) => {
+    const card = cardRefs.current[i];
+    if (!card) return;
+    hoverTweenRef.current?.kill();
+    const style = isMobile ? testimonials[i].mobile : testimonials[i].desktop;
+    const rotationMatch = testimonials[i].rotation.match(/-?\[([^\]]+)\]/);
+    const rotationDeg = rotationMatch ? parseFloat(rotationMatch[1]) * (testimonials[i].rotation.startsWith("-") ? -1 : 1) : 0;
+    hoverTweenRef.current = gsap.to(card, {
+      scale: 1,
+      rotation: rotationDeg,
+      zIndex: testimonials[i].zIndex,
+      boxShadow: "0 10px 30px -10px rgba(0,0,0,0.2)",
+      duration: 0.3,
+      ease: "power2.out",
+    });
+  }, [isMobile, testimonials]);
+
+  const closeCard = useCallback(() => {
+    if (tlRef.current) {
+      tlRef.current.reverse();
+      tlRef.current.eventCallback("onReverseComplete", () => {
+        setSelected(null);
+        tlRef.current = null;
+      });
+    } else {
+      setSelected(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!selected || !overlayRef.current || !popupRef.current) return;
+    const bounds = cardBoundsRef.current;
+    if (!bounds) return;
+
+    const overlay = overlayRef.current;
+    const popup = popupRef.current;
+
+    gsap.set(overlay, { autoAlpha: 1 });
+    gsap.set(popup, {
+      position: "fixed",
+      top: bounds.top,
+      left: bounds.left,
+      width: bounds.width,
+      height: bounds.height,
+      margin: 0,
+      scaleX: 1,
+      scaleY: 1,
+      opacity: 1,
+      transformOrigin: "center center",
+      borderRadius: "20px",
+      padding: "0",
+    });
+
+    const tl = gsap.timeline();
+    tl.to(popup, {
+      top: "50%",
+      left: "50%",
+      xPercent: -50,
+      yPercent: -50,
+      width: "100%",
+      maxWidth: "448px",
+      height: "auto",
+      padding: "1.5rem",
+      borderRadius: "16px",
+      duration: 0.4,
+      ease: "power3.out",
+    }, 0);
+    tl.fromTo(overlay, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.3 }, 0);
+    tl.to(popup.querySelectorAll(".popup-content > *"), { autoAlpha: 1, y: 0, duration: 0.25, stagger: 0.04 }, "-=0.1");
+
+    tlRef.current = tl;
+
+    return () => { tl.kill(); tlRef.current = null; };
+  }, [selected]);
 
   useEffect(() => {
     if (initialTestimonials) return;
@@ -294,13 +396,11 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                 w-[195px] max-[321px]:w-[140px] sm:w-[270px] md:w-[310px]
                 rounded-[20px] p-5 sm:p-6 max-[321px]:p-3
                 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.2)]
-                hover:scale-[1.08]
-                hover:rotate-0
-                hover:z-50
-                hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)]
                 cursor-pointer
               `}
-              onClick={() => setSelected(t)}
+              onClick={() => openCard(t, i)}
+              onMouseEnter={() => handleHoverEnter(i)}
+              onMouseLeave={() => handleHoverLeave(i)}
               style={{ zIndex: t.zIndex }}
             >
               <StarRating count={t.rating} />
@@ -335,50 +435,56 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
         </div>
       </div>
 
-      {selected && (
+      <div
+        ref={overlayRef}
+        className="fixed inset-0 z-[100] flex items-center justify-center"
+        style={{ visibility: "hidden", opacity: 0 }}
+      >
+        <div className="absolute inset-0 bg-black/70" onClick={closeCard} />
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setSelected(null)}
+          ref={popupRef}
+          className="bg-dark-grey relative"
+          style={{ overflow: "hidden" }}
+          onClick={(e) => e.stopPropagation()}
         >
-          <div
-            className="bg-dark-grey relative w-full max-w-md rounded-2xl p-6 sm:p-8"
-            onClick={(e) => e.stopPropagation()}
+          <button
+            onClick={closeCard}
+            className="text-steel-gray hover:text-light-grey absolute top-3 right-3 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+            aria-label="Close"
           >
-            <button
-              onClick={() => setSelected(null)}
-              className="text-steel-gray hover:text-light-grey absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
-              aria-label="Close"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
 
-            <StarRating count={selected.rating} />
-
-            <p className="mb-6 mt-4 text-sm leading-relaxed sm:text-base">
-              &ldquo;{selected.text}&rdquo;
-            </p>
-
-            <div className="flex items-center gap-3">
-              <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
-                {selected.imageUrl ? (
-                  <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
-                ) : (
-                  selected.avatar
-                )}
-              </div>
-              <div className="flex flex-col">
-                <p className="text-sm font-semibold">{selected.name}</p>
-                <p className={`${selected.verifiedColor} text-[10px] tracking-[0.5px] uppercase`}>
-                  Verified Customer
+          <div className="popup-content" style={{ opacity: 0 }}>
+            {selected && (
+              <>
+                <StarRating count={selected.rating} />
+                <p className="mb-6 mt-4 text-sm leading-relaxed sm:text-base">
+                  &ldquo;{selected.text}&rdquo;
                 </p>
-              </div>
-            </div>
+                <div className="flex items-center gap-3">
+                  <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
+                    {selected.imageUrl ? (
+                      <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
+                    ) : (
+                      selected.avatar
+                    )}
+                  </div>
+                  <div className="flex flex-col">
+                    <p className="text-sm font-semibold">{selected.name}</p>
+                    <p className={`${selected.verifiedColor} text-[10px] tracking-[0.5px] uppercase`}>
+                      Verified Customer
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </section>
   );
 }
