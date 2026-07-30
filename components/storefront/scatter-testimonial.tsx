@@ -111,6 +111,7 @@ const fallbackTestimonials: TestimonialData[] = [
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
+  const [selected, setSelected] = useState<TestimonialData | null>(null);
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 640);
     check();
@@ -299,6 +300,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                 hover:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)]
                 cursor-pointer
               `}
+              onClick={() => setSelected(t)}
               style={{ zIndex: t.zIndex }}
             >
               <StarRating count={t.rating} />
@@ -332,6 +334,52 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
           ))}
         </div>
       </div>
+      </div>
+
+      {selected && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setSelected(null)}
+        >
+          <div
+            className="bg-dark-grey relative w-full max-w-md rounded-2xl p-6 sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setSelected(null)}
+              className="text-steel-gray hover:text-light-grey absolute top-3 right-3 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+              aria-label="Close"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+
+            <StarRating count={selected.rating} />
+
+            <p className="mb-6 mt-4 text-sm leading-relaxed sm:text-base">
+              &ldquo;{selected.text}&rdquo;
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
+                {selected.imageUrl ? (
+                  <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
+                ) : (
+                  selected.avatar
+                )}
+              </div>
+              <div className="flex flex-col">
+                <p className="text-sm font-semibold">{selected.name}</p>
+                <p className={`${selected.verifiedColor} text-[10px] tracking-[0.5px] uppercase`}>
+                  Verified Customer
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
