@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import ScrollReveal from "@/components/ui/scroll-reveal";
 import StickerPeel from "@/components/ui/sticker-peel";
+import { isLowEndDevice } from "@/lib/device-capabilities";
 
 const cards = [
   { icon: "shield-check", label: "Verified\nAuthentic" },
@@ -24,11 +25,12 @@ export default function AboutSection() {
     if (!container) return;
 
     let cancelled = false;
+    const lowEnd = isLowEndDevice();
 
     const items = container.querySelectorAll<HTMLElement>("[data-trust-card]");
     if (!items.length) return;
 
-    gsap.set(items, { x: -120, opacity: 0, rotation: -90 });
+    gsap.set(items, { x: lowEnd ? -40 : -120, opacity: 0, rotation: lowEnd ? 0 : -90 });
 
     const sectionEl = container.closest("section");
     if (!sectionEl) return;
@@ -40,9 +42,9 @@ export default function AboutSection() {
         x: 0,
         opacity: 1,
         rotation: 0,
-        duration: 1.4,
+        duration: lowEnd ? 0.6 : 1.4,
         ease: "power2.out",
-        stagger: 0.25,
+        stagger: lowEnd ? 0.08 : 0.25,
       });
     }
 
@@ -60,7 +62,7 @@ export default function AboutSection() {
     const redContainer = redContainerRef.current;
     const blackBox = blackBoxRef.current;
     if (redContainer && blackBox) {
-      gsap.set(blackBox, { rotateY: -90, opacity: 0 });
+      gsap.set(blackBox, { rotateY: lowEnd ? 0 : -90, opacity: 0 });
       const blackBoxObserver = new IntersectionObserver(
         ([entry]) => {
           if (entry.isIntersecting && !blackBoxAnimated.current && !cancelled) {
@@ -68,7 +70,7 @@ export default function AboutSection() {
             gsap.to(blackBox, {
               rotateY: 6,
               opacity: 1,
-              duration: 2,
+              duration: lowEnd ? 0.7 : 2,
               ease: "power2.out",
             });
             blackBoxObserver.disconnect();

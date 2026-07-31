@@ -54,6 +54,7 @@ export default function BottomSheet({
           "bg-ink-black border-steel-gray/20 fixed bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto border-t animate-slide-up",
           className
         )}
+        data-lenis-prevent
       >
         <div className="container-storefront">
           <div className="flex items-center justify-between py-4">

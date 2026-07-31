@@ -44,6 +44,26 @@ export default function SaleSection({ initialImages }: { initialImages?: SaleIma
     if (!section || !leftCard || !rightCard || !bg) return;
 
     const ctx = gsap.context(() => {
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        gsap.set(leftCard, { x: "-110vw", opacity: 0, scale: 0.9 });
+        gsap.set(rightCard, { x: "110vw", opacity: 0, scale: 0.9 });
+
+        gsap.timeline({
+          scrollTrigger: {
+            trigger: section,
+            start: "top 85%",
+          },
+        }).to([leftCard, rightCard], {
+          x: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.6,
+          ease: "power2.out",
+          stagger: 0.15,
+        });
+        return;
+      }
+
       gsap.set(leftCard, { x: "-80vw", opacity: 0, scale: 0.8, rotateY: 0 });
       gsap.set(rightCard, { x: "80vw", opacity: 0, scale: 0.8, rotateY: 0 });
       gsap.set(bg, { y: "30%" });
@@ -94,6 +114,8 @@ export default function SaleSection({ initialImages }: { initialImages?: SaleIma
               <img
                 src={img.imageUrl}
                 alt={img.altText}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-auto rounded-2xl object-contain"
               />
             </div>

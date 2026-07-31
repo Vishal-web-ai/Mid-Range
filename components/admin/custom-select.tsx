@@ -52,7 +52,7 @@ export function CustomSelect({ value, onChange, options, placeholder = "Select..
       </button>
 
       {open && (
-        <div className="border-steel-gray bg-dark-grey absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border shadow-lg">
+        <div className="border-steel-gray bg-dark-grey absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded border shadow-lg" data-lenis-prevent>
           {options.map((option) => (
             <button
               key={option.value}

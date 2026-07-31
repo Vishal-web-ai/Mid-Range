@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollReveal from "@/components/ui/scroll-reveal";
+import { isLowEndDevice } from "@/lib/device-capabilities";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -244,6 +245,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
 
     const overlay = overlayRef.current;
     const popup = popupRef.current;
+    const lowEnd = isLowEndDevice();
 
     if (isNavRef.current) {
       isNavRef.current = false;
@@ -275,7 +277,8 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
       width: "100%", maxWidth: "448px", height: "auto",
       scale: 1, opacity: 1,
       padding: "1.5rem", borderRadius: "16px",
-      duration: 0.5, ease: "back.out(1.7)",
+      duration: lowEnd ? 0.35 : 0.5,
+      ease: lowEnd ? "power2.out" : "back.out(1.7)",
     }, 0);
     tl.to(popup.querySelector(".popup-content"), { opacity: 1, duration: 0.3 }, "-=0.15");
 
@@ -330,6 +333,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
 
     let cancelled = false;
     let scatterTimeout: ReturnType<typeof setTimeout> | null = null;
+    const lowEnd = isLowEndDevice();
 
     const ctx = gsap.context(() => {
       const cards = cardRefs.current.filter(Boolean) as HTMLDivElement[];
@@ -379,9 +383,9 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                 rotation: rotationDeg,
                 opacity: 1,
                 scale: 1,
-                duration: 0.8,
-                ease: "back.out(1.4)",
-                delay: i * 0.1,
+                duration: lowEnd ? 0.5 : 0.8,
+                ease: lowEnd ? "power2.out" : "back.out(1.4)",
+                delay: i * (lowEnd ? 0.05 : 0.1),
               });
             });
           }, 200);
@@ -450,7 +454,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                   className={`${t.avatarBg} relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-[11px] font-bold text-white`}
                 >
                   {t.imageUrl ? (
-                    <img src={t.imageUrl} alt={t.name} className="h-full w-full object-cover" />
+                    <img src={t.imageUrl} alt={t.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     t.avatar
                   )}
@@ -531,7 +535,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                   <div className="flex items-center gap-3">
                     <div className={`${selected.avatarBg} relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full text-sm font-bold text-white`}>
                       {selected.imageUrl ? (
-                        <img src={selected.imageUrl} alt={selected.name} className="h-full w-full object-cover" />
+                        <img src={selected.imageUrl} alt={selected.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                       ) : (
                         selected.avatar
                       )}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
 import { Toaster } from "sonner";
+import SmoothScroll from "@/components/ui/smooth-scroll";
 
 export const metadata: Metadata = {
   title: {
@@ -54,6 +55,7 @@ export default function RootLayout({
             }}
           />
         </CartProvider>
+        <SmoothScroll />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var el=document.documentElement;var cores=navigator.hardwareConcurrency;var mem=(navigator.deviceMemory||0);if((typeof cores==="number"&&cores<=4)||(mem>0&&mem<=4)){el.dataset.device="low-end";}}catch(e){}})();`,
