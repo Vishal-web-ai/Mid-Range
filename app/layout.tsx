@@ -25,11 +25,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="flex min-h-full flex-col">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var el=document.documentElement;var cores=navigator.hardwareConcurrency;var mem=(navigator.deviceMemory||0);if((typeof cores==="number"&&cores<=4)||(mem>0&&mem<=4)){el.dataset.device="low-end";}}catch(e){}})();`,
-          }}
-        />
         <CartProvider>
           <div className="flex-1">{children}</div>
           <Toaster
@@ -59,6 +54,11 @@ export default function RootLayout({
             }}
           />
         </CartProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var el=document.documentElement;var cores=navigator.hardwareConcurrency;var mem=(navigator.deviceMemory||0);if((typeof cores==="number"&&cores<=4)||(mem>0&&mem<=4)){el.dataset.device="low-end";}}catch(e){}})();`,
+          }}
+        />
       </body>
     </html>
   );
