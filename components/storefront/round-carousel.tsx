@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import { getHeroConfig } from "@/lib/hero-config";
+import { isLowEndDevice } from "@/lib/device-capabilities";
 
 const fallbackImages = [
   "/clothes/672414455_17861864229682647_3753836623058430552_n..jpg",
@@ -27,6 +28,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   const containerRef = useRef<HTMLDivElement>(null);
   const [cardSize, setCardSize] = useState(config.carousel.CARD);
   const [orbitReady, setOrbitReady] = useState(false);
+  const lowEnd = isLowEndDevice();
 
   useEffect(() => {
     if (initialImages) return;
@@ -59,7 +61,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
     const nav = performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming | undefined;
     if (nav?.type === "reload") sessionStorage.removeItem("midrange-hero-seen");
 
-    if (sessionStorage.getItem("midrange-hero-seen")) {
+    if (sessionStorage.getItem("midrange-hero-seen") || lowEnd) {
       const total = images.length;
       cardsRef.current.forEach((card, i) => {
         if (!card) return;
@@ -138,12 +140,28 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
 
     const total = images.length;
     const step = (2 * Math.PI) / total;
+    const frameMs = lowEnd ? 1000 / 30 : 0;
+    const speedFactor = lowEnd ? 2 : 1;
+    const lastZ: string[] = new Array(total);
+    const lastOpacity: string[] = new Array(total);
+    let lastFrame = 0;
     let cancelled = false;
     let visible = true;
+    let running = false;
 
-    const loop = () => {
-      if (cancelled || !visible) return;
-      angleRef.current += velocityRef.current * (Math.PI / 180);
+    const loop = (t: number) => {
+      if (cancelled) return;
+      if (!visible) {
+        running = false;
+        return;
+      }
+      running = true;
+      rafRef.current = requestAnimationFrame(loop);
+
+      if (frameMs && t - lastFrame < frameMs) return;
+      lastFrame = t;
+
+      angleRef.current += velocityRef.current * speedFactor * (Math.PI / 180);
 
       cardsRef.current.forEach((card, i) => {
         if (!card || cancelled) return;
@@ -152,23 +170,28 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
         const y = Math.sin(a) * ryRef.current;
         const normY = (y + ryRef.current) / (2 * ryRef.current);
         const scale = 0.55 + normY * 0.45;
-        const opacity = 0.25 + normY * 0.75;
-        const z = Math.round(1 + normY * 30);
+        const z = String(Math.round(1 + normY * 30));
+        const op = String(0.25 + normY * 0.75);
 
+        if (z !== lastZ[i]) {
+          lastZ[i] = z;
+          card.style.zIndex = z;
+        }
+        if (op !== lastOpacity[i]) {
+          lastOpacity[i] = op;
+          card.style.opacity = op;
+        }
         card.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${scale})`;
-        card.style.opacity = String(opacity);
-        card.style.zIndex = String(z);
       });
-
-      rafRef.current = requestAnimationFrame(loop);
     };
 
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible) {
-        rafRef.current = requestAnimationFrame(loop);
+        if (!running) rafRef.current = requestAnimationFrame(loop);
       } else {
         cancelAnimationFrame(rafRef.current);
+        running = false;
       }
     });
     if (containerRef.current) io.observe(containerRef.current);
