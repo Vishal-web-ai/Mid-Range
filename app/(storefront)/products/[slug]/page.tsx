@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import AddToCartButton from "@/components/storefront/add-to-cart-button";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
+import ShareCircle from "@/components/storefront/share-circle";
 import ScrollReveal from "@/components/ui/scroll-reveal";
 import ProductImageGallery from "@/components/storefront/product-image-gallery";
 import { getProductBySlug } from "@/lib/product-utils";
@@ -91,7 +92,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
 
               {product.category && (
-                <p className="text-steel-gray text-sm">Category: {product.category}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-steel-gray text-sm">Category: {product.category}</p>
+                  <ShareCircle title={product.title} />
+                </div>
               )}
 
               {product.details.length > 0 && (
