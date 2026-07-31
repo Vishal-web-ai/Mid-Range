@@ -5,6 +5,7 @@ import Preloader from "@/components/storefront/preloader";
 import HeroAnimationManager from "@/components/storefront/hero-animation-manager";
 import HeroSectionClient from "@/components/storefront/hero-section-client";
 import ProductGrid from "@/components/storefront/product-grid";
+import Footer from "@/components/storefront/footer";
 import { prisma } from "@/lib/prisma";
 import type { Metadata } from "next";
 
@@ -330,6 +331,7 @@ export default function HomePage() {
           <FaqSection />
         </Suspense>
       </main>
+      <Footer />
     </>
   );
 }

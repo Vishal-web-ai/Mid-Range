@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 type ShareCircleProps = {
   title: string;
+  className?: string;
 };
 
 function getShareUrl(title: string) {
@@ -23,7 +24,7 @@ async function copyLink() {
   }
 }
 
-export default function ShareCircle({ title }: ShareCircleProps) {
+export default function ShareCircle({ title, className }: ShareCircleProps) {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -52,7 +53,7 @@ export default function ShareCircle({ title }: ShareCircleProps) {
   const waLink = `https://wa.me/?text=${encodeURIComponent(`${getShareUrl(title).text} ${url}`)}`;
 
   const spring = "ease-[cubic-bezier(0.68,-0.55,0.265,1.55)]";
-  const hidden = open ? "translate-x-0 scale-100 opacity-100 visible" : "-translate-x-6 scale-50 opacity-0 invisible pointer-events-none";
+  const hidden = open ? "translate-x-0 translate-y-0 scale-100 opacity-100 visible pointer-events-auto" : "-translate-y-6 translate-x-0 scale-50 opacity-0 invisible pointer-events-none sm:-translate-x-6 sm:translate-y-0";
 
   const brands = [
     {
@@ -96,7 +97,7 @@ export default function ShareCircle({ title }: ShareCircleProps) {
   ];
 
   return (
-    <div ref={containerRef} className="relative inline-flex items-center">
+    <div ref={containerRef} className={`relative inline-flex items-center ${className ?? ""}`}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -119,7 +120,7 @@ export default function ShareCircle({ title }: ShareCircleProps) {
         )}
       </button>
 
-      <div className="absolute top-1/2 left-full z-10 flex -translate-y-1/2 items-center gap-1.5 pl-2">
+      <div className="pointer-events-none absolute top-full left-1/2 z-10 flex -translate-x-1/2 -translate-y-0 flex-col items-center gap-1.5 pt-2 sm:top-1/2 sm:left-full sm:translate-x-0 sm:-translate-y-1/2 sm:flex-row sm:pl-2">
         {brands.map((brand, i) => {
           const classes = `flex h-9 w-9 items-center justify-center rounded-full shadow-lg transition-all duration-500 ${spring} ${hidden} ${brand.textColor}`;
           const style = { background: brand.background, transitionDelay: open ? `${i * 80}ms` : "0ms" };

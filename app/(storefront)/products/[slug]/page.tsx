@@ -63,6 +63,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <span className="bg-signal-red text-ink-black px-2 py-0.5 text-xs font-bold tracking-wider">
                     -{Math.round(((product.price - product.discountedPrice) / product.price) * 100)}% OFF
                   </span>
+                  <ShareCircle title={product.title} className="ml-[1.25em]" />
                 </div>
               ) : (
                 <p className="text-signal-red text-3xl font-bold">{formatPrice(product.price)}</p>
@@ -79,11 +80,6 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     Condition : {product.condition}
                   </span>
                 )}
-                {product.gender && (
-                  <span className="bg-dark-grey border-steel-gray/50 text-light-grey rounded border px-4 py-2 text-sm font-medium">
-                    Gender : {product.gender.charAt(0).toUpperCase() + product.gender.slice(1)}
-                  </span>
-                )}
                 {product.status === "sold" && (
                   <span className="bg-signal-red/20 text-signal-red rounded border border-signal-red/50 px-4 py-2 text-sm font-medium">
                     SOLD
@@ -92,10 +88,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
               </div>
 
               {product.category && (
-                <div className="flex items-center gap-3">
-                  <p className="text-steel-gray text-sm">Category: {product.category}</p>
-                  <ShareCircle title={product.title} />
-                </div>
+                <p className="text-steel-gray text-sm">Category: {product.category}</p>
               )}
 
               {product.details.length > 0 && (

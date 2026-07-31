@@ -161,6 +161,10 @@ export default function CollectionGrid({
           </svg>
           Sort
         </button>
+
+        <p className="text-steel-gray text-xs font-semibold sm:text-sm">
+          {sorted.length} {sorted.length === 1 ? "Piece" : "Pieces"} Available
+        </p>
       </div>
 
       <FilterModal

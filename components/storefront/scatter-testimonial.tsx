@@ -209,7 +209,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
     isNavRef.current = true;
     if (popupRef.current) {
       gsap.to(popupRef.current.querySelector(".popup-content"), {
-        opacity: 0, duration: 0.15, onComplete: () => {
+        opacity: 0, x: 0, duration: 0.15, onComplete: () => {
           setSelectedIndex(i);
           setSelected(t);
         }
@@ -219,6 +219,54 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
       setSelected(t);
     }
   }, [testimonials]);
+
+  const swipeStartRef = useRef<{ x: number; y: number } | null>(null);
+  const swipeActiveRef = useRef(false);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    const t = e.touches[0];
+    swipeStartRef.current = { x: t.clientX, y: t.clientY };
+    swipeActiveRef.current = false;
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!swipeStartRef.current || !popupRef.current) return;
+    const t = e.touches[0];
+    const dx = t.clientX - swipeStartRef.current.x;
+    const dy = t.clientY - swipeStartRef.current.y;
+    if (!swipeActiveRef.current) {
+      if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+        swipeActiveRef.current = true;
+      } else {
+        return;
+      }
+    }
+    const content = popupRef.current.querySelector(".popup-content") as HTMLElement | null;
+    if (content) {
+      gsap.set(content, { x: dx, opacity: Math.max(0.2, 1 - Math.abs(dx) / 600) });
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const start = swipeStartRef.current;
+    swipeStartRef.current = null;
+    if (!start || !popupRef.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - start.x;
+    const active = swipeActiveRef.current;
+    swipeActiveRef.current = false;
+    if (!active) return;
+    const content = popupRef.current.querySelector(".popup-content") as HTMLElement | null;
+    if (!content) return;
+    const threshold = 60;
+    if (dx < -threshold && selectedIndex < testimonials.length - 1) {
+      gsap.to(content, { x: "-35%", opacity: 0, duration: 0.2, ease: "power2.in", onComplete: () => goTo(selectedIndex + 1) });
+    } else if (dx > threshold && selectedIndex > 0) {
+      gsap.to(content, { x: "35%", opacity: 0, duration: 0.2, ease: "power2.in", onComplete: () => goTo(selectedIndex - 1) });
+    } else {
+      gsap.to(content, { x: 0, opacity: 1, duration: 0.25, ease: "power2.out" });
+    }
+  }, [selectedIndex, testimonials.length, goTo]);
 
   const closeCard = useCallback(() => {
     if (tlRef.current) {
@@ -271,6 +319,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
     });
 
     const tl = gsap.timeline({ onStart: () => { overlay.style.visibility = "visible"; } });
+    gsap.set(popup.querySelector(".popup-content"), { x: 0 });
     tl.to(overlay, { opacity: 1, duration: 0.25 }, 0);
     tl.to(popup, {
       top: "50%", left: "50%",
@@ -482,14 +531,14 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
       >
         <div className="absolute inset-0 bg-black/70" onClick={closeCard} />
 
-        <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+        <div className="absolute bottom-[calc(5rem+4em)] left-1/2 -translate-x-1/2 z-20 flex items-center gap-[5em]">
           {selectedIndex > 0 && (
             <button
               onClick={(e) => { e.stopPropagation(); goTo(selectedIndex - 1); }}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-opacity hover:opacity-70"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white bg-black/40 text-white transition-opacity hover:opacity-70 sm:h-14 sm:w-14"
               aria-label="Previous"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6 sm:h-7 sm:w-7">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
@@ -497,10 +546,10 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
           {selectedIndex < testimonials.length - 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); goTo(selectedIndex + 1); }}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-black/40 text-white transition-opacity hover:opacity-70"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-white bg-black/40 text-white transition-opacity hover:opacity-70 sm:h-14 sm:w-14"
               aria-label="Next"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6 sm:h-7 sm:w-7">
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
@@ -510,8 +559,11 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
         <div
           ref={popupRef}
           className="relative"
-          style={{ overflow: "hidden" }}
+          style={{ overflow: "hidden", touchAction: "pan-y" }}
           onClick={(e) => e.stopPropagation()}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {selected && (
             <>

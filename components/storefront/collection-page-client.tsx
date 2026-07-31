@@ -37,27 +37,24 @@ export default function CollectionPageClient({ initialProducts, title, accentWor
     <main className="py-1">
       <div className="container-wide">
         <div className="border-steel-gray/20 border-t pt-0">
-          <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
             <h1 className="font-hero text-light-grey text-2xl font-bold tracking-wider uppercase sm:text-3xl md:text-5xl whitespace-nowrap">
               {accentWord ? (
                 <>{title.split(accentWord)[0]}<span className="text-signal-red">{accentWord}</span>{title.split(accentWord)[1]}</>
               ) : title}
             </h1>
-            <div className="font-hero flex items-center gap-1 text-[10px] font-bold tracking-widest uppercase sm:text-xs">
-              <Link href="/men" className={`${activeTab === "men" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-3 sm:py-1.5 transition-colors`}>
+            <div className="font-hero flex items-center justify-center gap-2 text-[10px] font-bold tracking-widest uppercase sm:text-sm sm:justify-start sm:gap-3">
+              <Link href="/men"                 className={`${activeTab === "men" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-5 sm:py-2 transition-colors`}>
                 Men
               </Link>
-              <Link href="/women" className={`${activeTab === "women" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-3 sm:py-1.5 transition-colors`}>
+              <Link href="/women"                 className={`${activeTab === "women" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-5 sm:py-2 transition-colors`}>
                 Women
               </Link>
-              <Link href="/collections" className={`${activeTab === "all" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-3 sm:py-1.5 transition-colors`}>
+              <Link href="/collections"                 className={`${activeTab === "all" ? "bg-signal-red text-light-grey" : "bg-dark-grey text-steel-gray hover:text-light-grey"} px-2 py-1 sm:px-5 sm:py-2 transition-colors`}>
                 All
               </Link>
             </div>
           </div>
-          <p className="text-steel-gray mb-4 text-sm sm:text-base">
-            {initialProducts.length} {initialProducts.length === 1 ? "piece" : "pieces"} available
-          </p>
 
           <CollectionGrid
             products={initialProducts}

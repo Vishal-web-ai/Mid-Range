@@ -2,10 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import ScrollReveal from "@/components/ui/scroll-reveal";
-import { useCart } from "@/lib/cart-context";
-import { toast } from "sonner";
 
 export type ProductCardProps = {
   id: string;
@@ -19,6 +18,78 @@ export type ProductCardProps = {
   delay?: number;
 };
 
+function getVisitorId(): string {
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem("midrange_visitor_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("midrange_visitor_id", id);
+  }
+  return id;
+}
+
+function WishlistToggle({ productId }: { productId: string }) {
+  const [wished, setWished] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const visitorId = getVisitorId();
+    if (!visitorId) return;
+    fetch(`/api/wishlist?visitorId=${visitorId}&productId=${productId}`)
+      .then((r) => r.json())
+      .then((data) => setWished(data.wished))
+      .catch(() => {});
+  }, [productId]);
+
+  async function toggle(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const visitorId = getVisitorId();
+    setLoading(true);
+    try {
+      if (wished) {
+        await fetch("/api/wishlist", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ visitorId, productId }),
+        });
+        setWished(false);
+      } else {
+        await fetch("/api/wishlist", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ visitorId, productId }),
+        });
+        setWished(true);
+      }
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      disabled={loading}
+      aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
+      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors disabled:opacity-50"
+    >
+      {wished ? (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      ) : (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-grey">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
 export default function ProductCard({
   id,
   title,
@@ -30,29 +101,12 @@ export default function ProductCard({
   status,
   delay = 0,
 }: ProductCardProps) {
-  const { addItem } = useCart();
   const isSold = status === "sold";
   const src = images[0] ?? "https://picsum.photos/seed/placeholder/400/500";
   const hasDiscount = discountedPrice != null && discountedPrice < price;
   const discountPercent = hasDiscount
     ? Math.round(((price - discountedPrice) / price) * 100)
     : 0;
-
-  function handleAddToCart(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
-    addItem({
-      id,
-      title,
-      slug,
-      price,
-      discountedPrice: hasDiscount ? discountedPrice : undefined,
-      image: src,
-      size: size ?? undefined,
-      quantity: 1,
-    });
-    toast.success("Added to cart");
-  }
 
   return (
     <ScrollReveal delay={delay}>
@@ -83,29 +137,7 @@ export default function ProductCard({
             </span>
           )}
 
-          {!isSold && (
-            <button
-              type="button"
-              onClick={handleAddToCart}
-              className="bg-ink-black/50 hover:bg-ink-black/80 text-light-grey absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="8" cy="21" r="1" />
-                <circle cx="19" cy="21" r="1" />
-                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-              </svg>
-            </button>
-          )}
+          {!isSold && <WishlistToggle productId={id} />}
         </div>
 
         <div className="p-3">

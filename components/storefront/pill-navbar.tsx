@@ -32,8 +32,11 @@ export default function PillNavbar() {
     let lastY = 0;
     const onScroll = () => {
       const y = window.scrollY;
-      if (y <= 0) { setHidden(false); lastY = 0; return; }
-      setHidden(y > lastY);
+      if (y <= 0) {
+        setHidden(false);
+      } else if (y > lastY) {
+        setHidden(true);
+      }
       lastY = y;
     };
     onScroll();
@@ -43,7 +46,7 @@ export default function PillNavbar() {
 
   return (
     <>
-      <nav className={`sticky top-0 z-50 w-full transition-transform duration-300 ${hidden ? "-translate-y-full" : "translate-y-0"}`}>
+      <nav className={`sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
           <Link
             href="/"
@@ -81,10 +84,10 @@ export default function PillNavbar() {
 
             <Link
               href="/cart"
-              className="relative flex items-center"
+              className="text-signal-red relative flex items-center transition-colors hover:text-light-grey"
               aria-label={`Cart (${count} items)`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red h-[24px] w-[24px] sm:h-[28px] sm:w-[28px]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-[24px] w-[24px] sm:h-[28px] sm:w-[28px]">
                 <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25z" />
               </svg>
               {count > 0 && (

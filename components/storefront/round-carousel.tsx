@@ -5,6 +5,7 @@ import Image from "next/image";
 import { gsap } from "gsap";
 import { getHeroConfig } from "@/lib/hero-config";
 import { isLowEndDevice } from "@/lib/device-capabilities";
+import { isPageReload } from "@/lib/page-reload";
 
 const fallbackImages = [
   "/clothes/672414455_17861864229682647_3753836623058430552_n..jpg",
@@ -58,8 +59,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   }, []);
 
   useEffect(() => {
-    const nav = performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming | undefined;
-    if (nav?.type === "reload") sessionStorage.removeItem("midrange-hero-seen");
+    if (isPageReload()) sessionStorage.removeItem("midrange-hero-seen");
 
     if (sessionStorage.getItem("midrange-hero-seen")) {
       const total = images.length;
