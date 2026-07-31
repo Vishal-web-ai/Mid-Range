@@ -184,7 +184,7 @@ export default function MagicRings({
         if (disposed) return;
         const w = mount.clientWidth;
         const h = mount.clientHeight;
-        const dpr = Math.min(window.devicePixelRatio, 2);
+        const dpr = Math.min(window.devicePixelRatio || 1, w < 768 ? 1.5 : 2);
         renderer.setSize(w, h);
         renderer.setPixelRatio(dpr);
         uniforms.uResolution.value.set(w * dpr, h * dpr);
@@ -214,9 +214,10 @@ export default function MagicRings({
       mount.addEventListener("mouseleave", onMouseLeave);
       mount.addEventListener("click", onClick);
 
-      let frameId: number;
+      let frameId = 0;
+      let running = false;
       const animate = (t: number) => {
-        if (disposed) return;
+        if (disposed || !running) return;
         frameId = requestAnimationFrame(animate);
         const p = propsRef.current!;
 
@@ -250,11 +251,26 @@ export default function MagicRings({
 
         renderer.render(scene, camera);
       };
-      frameId = requestAnimationFrame(animate);
+      const start = () => {
+        if (running || disposed) return;
+        running = true;
+        frameId = requestAnimationFrame(animate);
+      };
+      const stop = () => {
+        running = false;
+        cancelAnimationFrame(frameId);
+      };
+      const io = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) start();
+        else stop();
+      });
+      io.observe(mount);
+      start();
 
       cleanup = () => {
         disposed = true;
-        cancelAnimationFrame(frameId);
+        stop();
+        io.disconnect();
         window.removeEventListener("resize", resize);
         ro.disconnect();
         mount.removeEventListener("mousemove", onMouseMove);

@@ -48,3 +48,10 @@ next-env.d.ts
 # IDE
 .vscode/
 .idea/
+
+# tooling / test artifacts
+/.agents/
+/.playwright-mcp/
+/opencode.json
+/skills-lock.json
+

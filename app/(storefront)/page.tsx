@@ -108,7 +108,7 @@ const HERO_HEADINGS = [
 
 function HeroHeading() {
   return (
-    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center pointer-events-none max-[443px]:-translate-y-[5.5em] -translate-y-[4.5em]">
+    <div className="hero-heading-offset absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center pointer-events-none">
       {/* Desktop */}
       <div className="hidden min-[443px]:flex flex-col items-center">
         <h1
@@ -150,7 +150,6 @@ function HeroHeading() {
       <div className="flex min-[443px]:hidden flex-col items-center">
         <h1
           className="flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92] hero-mobile"
-          style={{ fontSize: "clamp(1.8rem, 8vw, 2.6rem)" }}
         >
           {(() => {
             let wi = 0;
@@ -173,7 +172,7 @@ function HeroHeading() {
           })()}
         </h1>
         <div className="mt-5 pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
-          <Link href="/collections" className="btn-primary font-hero max-[425px]:text-xs max-[425px]:px-3 max-[425px]:py-1.5 text-sm">
+          <Link href="/collections" className="btn-primary font-hero text-sm px-5 py-2.5">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
               <line x1="5" y1="12" x2="19" y2="12" />
@@ -194,7 +193,7 @@ async function HeroSection() {
     }).then((rows) => rows.map((r) => r.imageUrl)),
   ]);
   return (
-    <div className="relative" style={{ height: "85vh", minHeight: 500 }}>
+    <div className="relative hero-viewport">
       <HeroHeading />
       <HeroSectionClient initialCarouselImages={carouselImages} />
     </div>
@@ -234,7 +233,7 @@ export default function HomePage() {
       <Preloader />
       <HeroAnimationManager />
       <main>
-        <Suspense fallback={<div className="relative bg-dark-grey/30 h-[85vh] min-h-[500px] animate-pulse" />}>
+        <Suspense fallback={<div className="relative hero-viewport bg-dark-grey/30 animate-pulse" />}>
           <HeroSection />
         </Suspense>
 

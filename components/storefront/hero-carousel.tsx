@@ -3,15 +3,15 @@
 import { useState, useEffect } from "react";
 import RoundCarousel from "./round-carousel";
 import MagicRings from "@/components/ui/magic-rings";
+import { getHeroConfig } from "@/lib/hero-config";
 
 export default function HeroCarousel({ initialCarouselImages }: { initialCarouselImages?: string[] }) {
-  const [isMobile, setIsMobile] = useState(false);
+  const [config, setConfig] = useState(() => getHeroConfig(window.innerWidth));
 
   useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 430);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    const onResize = () => setConfig(getHeroConfig(window.innerWidth));
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, []);
 
   return (
@@ -20,13 +20,13 @@ export default function HeroCarousel({ initialCarouselImages }: { initialCarouse
         color="#E11D2E"
         colorTwo="#ff6b6b"
         speed={0.4}
-        ringCount={isMobile ? 6 : 4}
-        opacity={isMobile ? 1 : 0.5}
-        attenuation={isMobile ? 25 : 10}
-        baseRadius={isMobile ? 0.5 : 0.9}
-        radiusStep={isMobile ? 0.08 : 0.15}
-        lineThickness={isMobile ? 2 : 3}
-        rotation={isMobile ? 90 : 0}
+        ringCount={config.rings.ringCount}
+        opacity={config.rings.opacity}
+        attenuation={config.rings.attenuation}
+        baseRadius={config.rings.baseRadius}
+        radiusStep={config.rings.radiusStep}
+        lineThickness={config.rings.lineThickness}
+        rotation={config.rings.rotation}
         className="absolute inset-0 z-[1] pointer-events-none"
       />
 

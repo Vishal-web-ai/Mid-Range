@@ -119,11 +119,11 @@ export default function ProductCard({
             </div>
           ) : null}
           {hasDiscount ? (
-            <p className="font-hero text-signal-red text-sm font-bold tracking-wider">
+            <p className="font-sans text-signal-red text-sm font-bold tracking-wider">
               {formatPrice(discountedPrice)}
             </p>
           ) : (
-            <p className="font-hero text-steel-gray mt-1 text-sm font-bold tracking-wider">
+            <p className="font-sans text-steel-gray mt-1 text-sm font-bold tracking-wider">
               {formatPrice(price)}
             </p>
           )}

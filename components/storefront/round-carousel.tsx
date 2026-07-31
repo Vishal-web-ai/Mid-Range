@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
+import { getHeroConfig } from "@/lib/hero-config";
 
 const fallbackImages = [
   "/clothes/672414455_17861864229682647_3753836623058430552_n..jpg",
@@ -14,31 +15,17 @@ const fallbackImages = [
   "/clothes/670885305_17861866086682647_4525697963580129592_n..jpg",
 ];
 
-function lerp(a: number, b: number, t: number) {
-  return a + (b - a) * Math.min(1, Math.max(0, t));
-}
-
-function getConfig(width: number) {
-  const minW = 320;
-  const maxW = 1440;
-  const t = Math.min(1, Math.max(0, (width - minW) / (maxW - minW)));
-  return {
-    RX: lerp(150, 400, t),
-    RY: lerp(105, 250, t),
-    CARD: lerp(110, 260, t),
-    SPEED: lerp(0.14, 0.1, t),
-  };
-}
-
 export default function RoundCarousel({ initialImages }: { initialImages?: string[] }) {
   const [images, setImages] = useState(initialImages && initialImages.length > 0 ? initialImages : fallbackImages);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const angleRef = useRef(0);
-  const velocityRef = useRef(0.15);
-  const rxRef = useRef(400);
-  const ryRef = useRef(250);
+  const [config] = useState(() => getHeroConfig(window.innerWidth));
+  const velocityRef = useRef(config.carousel.SPEED);
+  const rxRef = useRef(config.carousel.RX);
+  const ryRef = useRef(config.carousel.RY);
   const rafRef = useRef<number>(0);
-  const [cardSize, setCardSize] = useState(260);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [cardSize, setCardSize] = useState(config.carousel.CARD);
   const [orbitReady, setOrbitReady] = useState(false);
 
   useEffect(() => {
@@ -57,16 +44,11 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   }, [initialImages]);
 
   useEffect(() => {
-    const cfg = getConfig(window.innerWidth);
-    velocityRef.current = cfg.SPEED;
-    rxRef.current = cfg.RX;
-    ryRef.current = cfg.RY;
-    setCardSize(cfg.CARD);
-
     function onResize() {
-      const c = getConfig(window.innerWidth);
+      const c = getHeroConfig(window.innerWidth).carousel;
       rxRef.current = c.RX;
       ryRef.current = c.RY;
+      velocityRef.current = c.SPEED;
       setCardSize(c.CARD);
     }
     window.addEventListener("resize", onResize);
@@ -157,9 +139,10 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
     const total = images.length;
     const step = (2 * Math.PI) / total;
     let cancelled = false;
+    let visible = true;
 
-    function loop() {
-      if (cancelled) return;
+    const loop = () => {
+      if (cancelled || !visible) return;
       angleRef.current += velocityRef.current * (Math.PI / 180);
 
       cardsRef.current.forEach((card, i) => {
@@ -177,21 +160,31 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
         card.style.zIndex = String(z);
       });
 
-      if (!cancelled) {
+      rafRef.current = requestAnimationFrame(loop);
+    };
+
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) {
         rafRef.current = requestAnimationFrame(loop);
+      } else {
+        cancelAnimationFrame(rafRef.current);
       }
-    }
+    });
+    if (containerRef.current) io.observe(containerRef.current);
 
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       cancelled = true;
       cancelAnimationFrame(rafRef.current);
+      io.disconnect();
     };
   }, [orbitReady]);
 
   return (
     <div
-      className="absolute inset-0 z-10 pointer-events-none select-none"
+      ref={containerRef}
+      className="hero-carousel-shift absolute inset-0 z-10 pointer-events-none select-none"
       suppressHydrationWarning
     >
       <div className="relative h-full w-full" style={{ perspective: "600px" }}>
