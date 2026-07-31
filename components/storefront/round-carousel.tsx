@@ -102,8 +102,8 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
       });
 
       const total = images.length;
-      const stagger = lowEnd ? 0 : 0.18;
-      const duration = lowEnd ? 0.7 : 1.2;
+      const stagger = 0.18;
+      const duration = 1.2;
       cardsRef.current.forEach((card, i) => {
         if (!card) return;
         const targetAngle = (2 * Math.PI * i) / total;
@@ -121,7 +121,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
             scale: targetScale,
             opacity: targetOpacity,
             duration,
-            ease: lowEnd ? "power2.out" : "power3.out",
+            ease: "power3.out",
           },
           i * stagger,
         );

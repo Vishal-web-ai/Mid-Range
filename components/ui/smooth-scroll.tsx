@@ -7,12 +7,16 @@ import Lenis from "lenis";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const WHEEL_DURATION = 1.1;
+const WHEEL_EASING = (t: number) => 1 - Math.pow(1 - t, 4);
+
 export default function SmoothScroll() {
   useEffect(() => {
     const lenis = new Lenis({
-      lerp: 0.1,
       smoothWheel: true,
       syncTouch: true,
+      duration: WHEEL_DURATION,
+      easing: WHEEL_EASING,
       wheelMultiplier: 1,
       touchMultiplier: 1,
     });

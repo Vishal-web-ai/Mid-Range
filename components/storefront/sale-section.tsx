@@ -44,26 +44,6 @@ export default function SaleSection({ initialImages }: { initialImages?: SaleIma
     if (!section || !leftCard || !rightCard || !bg) return;
 
     const ctx = gsap.context(() => {
-      if (window.matchMedia("(max-width: 767px)").matches) {
-        gsap.set(leftCard, { x: "-110vw", opacity: 0, scale: 0.9 });
-        gsap.set(rightCard, { x: "110vw", opacity: 0, scale: 0.9 });
-
-        gsap.timeline({
-          scrollTrigger: {
-            trigger: section,
-            start: "top 85%",
-          },
-        }).to([leftCard, rightCard], {
-          x: 0,
-          opacity: 1,
-          scale: 1,
-          duration: 0.6,
-          ease: "power2.out",
-          stagger: 0.15,
-        });
-        return;
-      }
-
       gsap.set(leftCard, { x: "-80vw", opacity: 0, scale: 0.8, rotateY: 0 });
       gsap.set(rightCard, { x: "80vw", opacity: 0, scale: 0.8, rotateY: 0 });
       gsap.set(bg, { y: "30%" });
@@ -79,14 +59,12 @@ export default function SaleSection({ initialImages }: { initialImages?: SaleIma
       });
 
       tl.to(bg, { y: "-30%", duration: 1, ease: "none" }, 0);
-      tl.to(leftCard, { x: 0, opacity: 1, scale: 1, rotateY: 30, duration: 0.35, ease: "none" }, 0);
-      tl.to(rightCard, { x: 0, opacity: 1, scale: 1, rotateY: -30, duration: 0.35, ease: "none" }, 0);
-      tl.to(leftCard, { rotateY: 30, duration: 0.4, ease: "none" }, 0.35);
-      tl.to(rightCard, { rotateY: -30, duration: 0.4, ease: "none" }, 0.35);
-      tl.to(leftCard, { rotateY: 0, duration: 0.1, ease: "none" }, 0.75);
-      tl.to(rightCard, { rotateY: 0, duration: 0.1, ease: "none" }, 0.75);
-      tl.to(leftCard, { x: "-80vw", opacity: 0, scale: 0.8, duration: 0.15, ease: "none" }, 0.85);
-      tl.to(rightCard, { x: "80vw", opacity: 0, scale: 0.8, duration: 0.15, ease: "none" }, 0.85);
+      tl.to(leftCard, { x: 0, opacity: 1, scale: 1, rotateY: 30, duration: 0.18, ease: "none" }, 0);
+      tl.to(rightCard, { x: 0, opacity: 1, scale: 1, rotateY: -30, duration: 0.18, ease: "none" }, 0);
+      tl.to(leftCard, { rotateY: 0, duration: 0.04, ease: "none" }, 0.18);
+      tl.to(rightCard, { rotateY: 0, duration: 0.04, ease: "none" }, 0.18);
+      tl.to(leftCard, { x: "-120vw", scale: 2.2, opacity: 0, rotateY: 40, duration: 0.6, ease: "none" }, 0.4);
+      tl.to(rightCard, { x: "120vw", scale: 2.2, opacity: 0, rotateY: -40, duration: 0.6, ease: "none" }, 0.4);
     }, section);
 
     return () => ctx.revert();
