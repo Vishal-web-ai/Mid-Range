@@ -61,7 +61,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
     const nav = performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming | undefined;
     if (nav?.type === "reload") sessionStorage.removeItem("midrange-hero-seen");
 
-    if (sessionStorage.getItem("midrange-hero-seen") || lowEnd) {
+    if (sessionStorage.getItem("midrange-hero-seen")) {
       const total = images.length;
       cardsRef.current.forEach((card, i) => {
         if (!card) return;
@@ -102,6 +102,8 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
       });
 
       const total = images.length;
+      const stagger = lowEnd ? 0 : 0.18;
+      const duration = lowEnd ? 0.7 : 1.2;
       cardsRef.current.forEach((card, i) => {
         if (!card) return;
         const targetAngle = (2 * Math.PI * i) / total;
@@ -118,10 +120,10 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
             y: targetY,
             scale: targetScale,
             opacity: targetOpacity,
-            duration: 1.2,
-            ease: "power3.out",
+            duration,
+            ease: lowEnd ? "power2.out" : "power3.out",
           },
-          i * 0.18,
+          i * stagger,
         );
       });
     }, 500);
