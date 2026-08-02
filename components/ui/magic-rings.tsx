@@ -112,6 +112,7 @@ export default function MagicRings({
   className,
 }: MagicRingsProps) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef<Omit<MagicRingsProps, "className"> | null>(null);
   const mouseRef = useRef([0, 0]);
   const smoothMouseRef = useRef([0, 0]);
@@ -128,7 +129,8 @@ export default function MagicRings({
 
   useEffect(() => {
     const mount = mountRef.current;
-    if (!mount) return;
+    const canvas = canvasRef.current;
+    if (!mount || !canvas) return;
 
     let disposed = false;
     let cleanup: (() => void) | undefined;
@@ -138,14 +140,13 @@ export default function MagicRings({
 
       let renderer: THREE.WebGLRenderer;
       try {
-        renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
       } catch (e) {
         console.error("MagicRings: WebGLRenderer failed", e);
         return;
       }
 
       renderer.setClearColor(0x000000, 0);
-      mount.appendChild(renderer.domElement);
 
       const scene = new THREE.Scene();
       const camera = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0.1, 10);
@@ -277,9 +278,6 @@ export default function MagicRings({
         mount.removeEventListener("mouseenter", onMouseEnter);
         mount.removeEventListener("mouseleave", onMouseLeave);
         mount.removeEventListener("click", onClick);
-        if (mount.contains(renderer.domElement)) {
-          mount.removeChild(renderer.domElement);
-        }
         renderer.dispose();
         material.dispose();
       };
@@ -296,6 +294,8 @@ export default function MagicRings({
       ref={mountRef}
       className={className}
       style={blur > 0 ? { filter: `blur(${blur}px)` } : undefined}
-    />
+    >
+      <canvas ref={canvasRef} className="block h-full w-full" />
+    </div>
   );
 }

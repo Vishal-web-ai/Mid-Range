@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -14,14 +15,14 @@ export default function Footer() {
       <div className={isHome ? "border-steel-gray/20 border-t py-12" : "border-steel-gray/20 border-t py-5"}>
         <div className="container-wide">
           <div className={isHome ? "mb-12" : "mb-4"}>
-            <Link
-              href="/"
-              className={isHome
-                ? "font-hero text-gradient-red text-4xl font-bold tracking-widest uppercase sm:text-5xl"
-                : "font-hero text-gradient-red text-lg font-bold tracking-widest uppercase"
-              }
-            >
-              MidRange
+            <Link href="/" className="flex items-center" aria-label="MidRange">
+              <Image
+                src="/logo/logo.png"
+                alt="MidRange"
+                width={1536}
+                height={1024}
+                className={isHome ? "h-8 w-auto" : "h-6 w-auto"}
+              />
             </Link>
             <p className={isHome
               ? "text-steel-gray mt-3 text-lg font-semibold leading-tight"

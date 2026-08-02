@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
@@ -48,30 +49,37 @@ export default function PillNavbar() {
     <>
       <nav className={`sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
-          <Link
-            href="/"
-            className="font-hero text-gradient-red relative z-10 shrink-0 text-[24px] font-bold tracking-widest uppercase sm:text-[30px]"
-          >
-            MidRange
-          </Link>
+          <div className="relative flex w-full items-center justify-between">
+            <Link
+              href="/"
+              className="relative z-10 flex shrink-0 items-center max-[1069px]:-ml-[2em] min-[1440px]:-ml-[7em]"
+              aria-label="MidRange"
+            >
+              <Image
+                src="/logo/logo.png"
+                alt="MidRange"
+                width={1536}
+                height={1024}
+                priority
+                className="h-[135px] w-auto lg:h-[250px]"
+              />
+            </Link>
 
-          <div
-            className="absolute left-1/2 -translate-x-[40%] hidden items-center md:flex"
-          >
-            <div className="flex items-center md:gap-8">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="nav-link text-light-grey text-xs md:text-base font-medium tracking-wider uppercase transition-colors hover:text-signal-red"
-                >
-                  {item.label}
-                </Link>
-              ))}
+            <div className="hidden items-center md:flex lg:-ml-[3em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
+              <div className="flex items-center gap-8">
+                {NAV_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="nav-link text-light-grey text-xs md:text-base font-medium tracking-wider uppercase transition-colors hover:text-signal-red"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <div className="ml-auto flex items-center gap-[12px] sm:gap-[16px]">
+            <div className="flex shrink-0 items-center gap-[12px] sm:gap-[16px]">
             <Link
               href="/wishlist"
               className="text-signal-red hidden items-center transition-colors hover:text-light-grey sm:flex"
@@ -108,6 +116,7 @@ export default function PillNavbar() {
               <span className={`block h-[3px] w-[24px] rounded bg-current transition-opacity duration-300 ${menuOpen ? "opacity-0" : ""}`} />
               <span className={`block h-[3px] w-[24px] rounded bg-current transition-transform duration-300 ${menuOpen ? "-translate-y-[7px] -rotate-45" : ""}`} />
             </button>
+          </div>
           </div>
         </div>
       </nav>

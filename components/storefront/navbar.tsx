@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/lib/cart-context";
 
@@ -18,11 +19,15 @@ export default function Navbar() {
     <>
       <nav className="sticky top-0 z-50 w-full">
         <div className="container-storefront relative flex h-12 items-center sm:h-14">
-          <Link
-            href="/"
-            className="font-hero text-gradient-red text-xl font-bold tracking-widest uppercase sm:text-2xl"
-          >
-            MidRange
+          <Link href="/" className="flex items-center" aria-label="MidRange">
+            <Image
+              src="/logo/logo.png"
+              alt="MidRange"
+              width={1536}
+              height={1024}
+              priority
+              className="h-8 w-auto sm:h-9"
+            />
           </Link>
 
           <div className="absolute left-1/2 hidden -translate-x-1/2 items-center justify-center gap-3 sm:flex sm:gap-4 md:gap-5 max-[770px]:left-[calc(50%+12px)]">
