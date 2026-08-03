@@ -21,7 +21,7 @@ export const ProductSchema = z.object({
   size: z.string().max(20).optional(),
   category: z.string().max(100).optional(),
   condition: z.string().max(100).optional(),
-  gender: z.enum(["men", "women"]).optional(),
+  gender: z.enum(["men", "women", "unisex"]).optional(),
   details: z.array(z.string()).optional(),
   images: z.array(z.string().url()).min(1, "At least one image required"),
   status: z.enum(["available", "sold"]).default("available"),

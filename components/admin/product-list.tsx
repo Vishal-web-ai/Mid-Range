@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { cn, formatPrice } from "@/lib/utils";
 import { ProductForm } from "./product-form";
+import ConfirmDialog from "./confirm-dialog";
 
 interface Product {
   id: string;
@@ -26,16 +28,19 @@ export function ProductList({ products }: { products: Product[] }) {
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this product?")) return;
     setLoading(id);
     try {
       const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Failed");
+      toast.success("Product deleted");
+      setDeleteTarget(null);
       router.refresh();
     } catch {
-      alert("Failed to delete product");
+      toast.error("Failed to delete product");
+      setDeleteTarget(null);
     } finally {
       setLoading(null);
     }
@@ -165,9 +170,23 @@ export function ProductList({ products }: { products: Product[] }) {
                 <td className="text-light-grey max-w-[200px] truncate p-3 font-medium">
                   {p.title}
                 </td>
-                <td className="text-light-grey p-3">{formatPrice(p.price)}</td>
+                <td className="p-3">
+                  {p.discountedPrice != null ? (
+                    <span className="flex items-center gap-1.5">
+                      <span className="text-steel-gray line-through">{formatPrice(p.price)}</span>
+                      <span className="text-signal-red font-medium">
+                        {formatPrice(p.discountedPrice)}
+                      </span>
+                    </span>
+                  ) : (
+                    <span className="text-light-grey">{formatPrice(p.price)}</span>
+                  )}
+                </td>
                 <td className="text-light-grey p-3">{p.size ?? "\u2014"}</td>
-                <td className="text-light-grey p-3">{p.category ?? "\u2014"}</td>
+                <td className="text-light-grey p-3">
+                  {p.category ?? "\u2014"}
+                  {p.gender && <span className="text-steel-gray"> / {p.gender}</span>}
+                </td>
                 <td className="p-3">
                   <span
                     className={cn(
@@ -210,7 +229,7 @@ export function ProductList({ products }: { products: Product[] }) {
                       </button>
                     )}
                     <button
-                      onClick={() => handleDelete(p.id)}
+                      onClick={() => setDeleteTarget(p)}
                       disabled={loading === p.id}
                       className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                     >
@@ -247,10 +266,20 @@ export function ProductList({ products }: { products: Product[] }) {
             )}
             <div className="min-w-0 flex-1">
               <p className="text-light-grey truncate font-medium">{p.title}</p>
-              <p className="text-light-grey text-sm">{formatPrice(p.price)}</p>
+              {p.discountedPrice != null ? (
+                <p className="text-sm">
+                  <span className="text-steel-gray line-through">{formatPrice(p.price)}</span>{" "}
+                  <span className="text-signal-red font-medium">
+                    {formatPrice(p.discountedPrice)}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-light-grey text-sm">{formatPrice(p.price)}</p>
+              )}
               <div className="text-steel-gray mt-1 flex flex-wrap items-center gap-2 text-xs">
                 {p.size && <span>{p.size}</span>}
                 {p.category && <span>{p.category}</span>}
+                {p.gender && <span>{p.gender}</span>}
                 <span
                   className={cn(
                     "rounded px-1.5 py-0.5",
@@ -291,7 +320,7 @@ export function ProductList({ products }: { products: Product[] }) {
                   </button>
                 )}
                 <button
-                  onClick={() => handleDelete(p.id)}
+                  onClick={() => setDeleteTarget(p)}
                   disabled={loading === p.id}
                   className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                 >
@@ -302,6 +331,46 @@ export function ProductList({ products }: { products: Product[] }) {
           </div>
         ))}
       </div>
+
+      {/* Delete confirmation modal */}
+      <ConfirmDialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => deleteTarget && handleDelete(deleteTarget.id)}
+        title="Delete Product"
+        confirmLabel="Delete"
+        loading={loading === deleteTarget?.id}
+        loadingLabel="Deleting..."
+        danger
+      >
+        {deleteTarget && (
+          <div className="flex items-center gap-3">
+            {deleteTarget.images[0] ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={deleteTarget.images[0]}
+                alt={deleteTarget.title}
+                className="h-14 w-14 shrink-0 rounded object-cover"
+              />
+            ) : (
+              <div className="bg-ink-black text-steel-gray flex h-14 w-14 shrink-0 items-center justify-center rounded text-xs">
+                N/A
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-light-grey truncate font-medium">{deleteTarget.title}</p>
+              <p className="text-steel-gray text-sm">
+                {formatPrice(deleteTarget.price)}
+                {deleteTarget.discountedPrice != null &&
+                  ` \u2192 ${formatPrice(deleteTarget.discountedPrice)}`}
+              </p>
+            </div>
+          </div>
+        )}
+        <p className="text-signal-red mt-4 text-sm leading-relaxed">
+          This will permanently delete the product. This action cannot be undone.
+        </p>
+      </ConfirmDialog>
     </div>
   );
 }

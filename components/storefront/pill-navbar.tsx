@@ -6,13 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import StaggeredMenu from "@/components/storefront/staggered-menu";
-
-const NAV_ITEMS = [
-  { label: "Collections", href: "/collections" },
-  { label: "Men", href: "/men" },
-  { label: "Women", href: "/women" },
-  { label: "About Us", href: "/about" },
-];
+import PillNavLinks from "@/components/storefront/pill-nav-links";
 
 export default function PillNavbar() {
   const pathname = usePathname();
@@ -52,7 +46,7 @@ export default function PillNavbar() {
           <div className="relative flex w-full items-center justify-between">
             <Link
               href="/"
-              className="relative z-10 flex shrink-0 items-center max-[1069px]:-ml-[2em] min-[1440px]:-ml-[7em]"
+              className="relative z-10 flex shrink-0 items-center max-[769px]:-ml-[2.5em] min-[1440px]:-ml-[7em]"
               aria-label="MidRange"
             >
               <Image
@@ -66,17 +60,7 @@ export default function PillNavbar() {
             </Link>
 
             <div className="hidden items-center md:flex lg:-ml-[3em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
-              <div className="flex items-center gap-8">
-                {NAV_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="nav-link text-light-grey text-xs md:text-base font-medium tracking-wider uppercase transition-colors hover:text-signal-red"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
+              <PillNavLinks />
             </div>
 
             <div className="flex shrink-0 items-center gap-[12px] sm:gap-[16px]">

@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/prisma";
+import { seedHomepageContent } from "@/lib/seed-homepage";
 import { CustomizeManager } from "@/components/admin/customize-manager";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminCustomizePage() {
+  await seedHomepageContent();
+
   const [carouselImages, saleImages, testimonials] = await Promise.all([
     prisma.roundCarouselImage.findMany({
       orderBy: { order: "asc" },
