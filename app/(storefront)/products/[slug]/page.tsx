@@ -113,7 +113,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     image={mainImage}
                     size={product.size}
                   />
-                  <WishlistButton productId={product.id} />
+                  <WishlistButton productId={product.id} product={product} />
                 </div>
               )}
             </div>

@@ -15,6 +15,7 @@ export async function PUT(
     const data: Record<string, unknown> = {};
     if (body.name !== undefined) data.name = body.name;
     if (body.imageUrl !== undefined) data.imageUrl = body.imageUrl;
+    if (body.photos !== undefined) data.photos = Array.isArray(body.photos) ? body.photos.slice(0, 4) : [];
     if (body.text !== undefined) data.text = body.text;
     if (body.rating !== undefined) data.rating = body.rating;
     if (body.order !== undefined) data.order = body.order;

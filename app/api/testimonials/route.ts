@@ -22,7 +22,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, imageUrl, text, rating, order } = body;
+    const { name, imageUrl, photos, text, rating, order } = body;
 
     if (!name || !text) {
       return Response.json(
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
       data: {
         name,
         imageUrl: imageUrl ?? null,
+        photos: Array.isArray(photos) ? photos.slice(0, 4) : [],
         text,
         rating: rating ?? 5,
         order: order ?? 0,

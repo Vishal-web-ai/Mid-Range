@@ -1,66 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
-function getVisitorId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("midrange_visitor_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("midrange_visitor_id", id);
-  }
-  return id;
-}
+import { useWishlist, type WishlistProduct } from "@/lib/wishlist-context";
 
 interface WishlistButtonProps {
   productId: string;
+  product: WishlistProduct;
 }
 
-export function WishlistButton({ productId }: WishlistButtonProps) {
-  const [wished, setWished] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const visitorId = getVisitorId();
-    if (!visitorId) return;
-    fetch(`/api/wishlist?visitorId=${visitorId}&productId=${productId}`)
-      .then((r) => r.json())
-      .then((data) => setWished(data.wished))
-      .catch(() => {});
-  }, [productId]);
-
-  async function toggle() {
-    const visitorId = getVisitorId();
-    setLoading(true);
-    try {
-      if (wished) {
-        await fetch("/api/wishlist", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ visitorId, productId }),
-        });
-        setWished(false);
-      } else {
-        await fetch("/api/wishlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ visitorId, productId }),
-        });
-        setWished(true);
-      }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }
+export function WishlistButton({ productId, product }: WishlistButtonProps) {
+  const { isWished, toggle } = useWishlist();
+  const wished = isWished(productId);
 
   return (
     <button
       type="button"
-      onClick={toggle}
-      disabled={loading}
-      className="flex w-full items-center justify-center gap-2 rounded bg-white px-4 py-3 text-sm font-semibold tracking-wider text-ink-black uppercase transition-colors hover:bg-light-grey disabled:opacity-50"
+      onClick={() => toggle(productId, product)}
+      className="flex w-full items-center justify-center gap-2 rounded bg-white px-4 py-3 text-sm font-semibold tracking-wider text-ink-black uppercase transition-colors hover:bg-light-grey"
     >
       {wished ? (
         <>

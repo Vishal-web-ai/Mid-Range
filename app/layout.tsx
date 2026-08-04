@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "@/lib/cart-context";
+import { WishlistProvider } from "@/lib/wishlist-context";
 import { Toaster } from "sonner";
 import SmoothScroll from "@/components/ui/smooth-scroll";
 import AgentationToolbar from "@/components/ui/agentation-toolbar";
@@ -28,8 +29,9 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="flex min-h-full flex-col">
         <CartProvider>
-          <div className="flex-1">{children}</div>
-          <Toaster
+          <WishlistProvider>
+            <div className="flex-1">{children}</div>
+            <Toaster
             position="bottom-right"
             icons={{
               success: (
@@ -55,6 +57,7 @@ export default function RootLayout({
               },
             }}
           />
+          </WishlistProvider>
         </CartProvider>
         <SmoothScroll />
         <AgentationToolbar />

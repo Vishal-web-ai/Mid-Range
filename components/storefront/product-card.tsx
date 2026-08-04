@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { cn, formatPrice } from "@/lib/utils";
 import ScrollReveal from "@/components/ui/scroll-reveal";
+import { useWishlist, type WishlistProduct } from "@/lib/wishlist-context";
 
 export type ProductCardProps = {
   id: string;
@@ -18,64 +18,22 @@ export type ProductCardProps = {
   delay?: number;
 };
 
-function getVisitorId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("midrange_visitor_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("midrange_visitor_id", id);
-  }
-  return id;
-}
+function WishlistToggle({ product }: { product: WishlistProduct }) {
+  const { isWished, toggle } = useWishlist();
+  const wished = isWished(product.id);
 
-function WishlistToggle({ productId }: { productId: string }) {
-  const [wished, setWished] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const visitorId = getVisitorId();
-    if (!visitorId) return;
-    fetch(`/api/wishlist?visitorId=${visitorId}&productId=${productId}`)
-      .then((r) => r.json())
-      .then((data) => setWished(data.wished))
-      .catch(() => {});
-  }, [productId]);
-
-  async function toggle(e: React.MouseEvent) {
+  function handleToggle(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    const visitorId = getVisitorId();
-    setLoading(true);
-    try {
-      if (wished) {
-        await fetch("/api/wishlist", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ visitorId, productId }),
-        });
-        setWished(false);
-      } else {
-        await fetch("/api/wishlist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ visitorId, productId }),
-        });
-        setWished(true);
-      }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
+    toggle(product.id, product);
   }
 
   return (
     <button
       type="button"
-      onClick={toggle}
-      disabled={loading}
+      onClick={handleToggle}
       aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors disabled:opacity-50"
+      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
     >
       {wished ? (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
@@ -137,7 +95,11 @@ export default function ProductCard({
             </span>
           )}
 
-          {!isSold && <WishlistToggle productId={id} />}
+          {!isSold && (
+            <WishlistToggle
+              product={{ id, title, slug, price, discountedPrice, size, images, status }}
+            />
+          )}
         </div>
 
         <div className="p-3">

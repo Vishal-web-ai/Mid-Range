@@ -41,7 +41,7 @@ export default function PillNavbar() {
 
   return (
     <>
-      <nav className={`sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
+      <nav className={`pill-navbar sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
           <div className="relative flex w-full items-center justify-between">
             <Link

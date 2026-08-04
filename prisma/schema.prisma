@@ -97,6 +97,7 @@ model Testimonial {
   id        String   @id @default(cuid())
   name      String
   imageUrl  String?
+  photos    String[] @default([])
   text      String
   rating    Int      @default(5)
   order     Int      @default(0)

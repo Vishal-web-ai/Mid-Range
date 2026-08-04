@@ -18,7 +18,7 @@ export default async function AdminCustomizePage() {
     }),
     prisma.testimonial.findMany({
       orderBy: { order: "asc" },
-      select: { id: true, name: true, imageUrl: true, text: true, rating: true, order: true, active: true },
+      select: { id: true, name: true, imageUrl: true, photos: true, text: true, rating: true, order: true, active: true },
     }),
   ]);
 

@@ -113,8 +113,7 @@ function HeroHeading() {
       {/* Desktop */}
       <div className="hidden min-[443px]:flex flex-col items-center">
         <h1
-          className="flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92]"
-          style={{ fontSize: "clamp(2.2rem, 5vw + 0.4rem, 5.5rem)" }}
+          className="hero-desktop flex flex-col font-hero text-light-grey font-bold tracking-wide uppercase leading-[0.92]"
         >
           {(() => {
             let wi = 0;
@@ -172,7 +171,7 @@ function HeroHeading() {
             ));
           })()}
         </h1>
-        <div className="mt-5 pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
+        <div className="mt-5 hero-cta-mobile pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
           <Link href="/collections" className="btn-primary font-hero text-sm px-5 py-2.5">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
@@ -212,8 +211,8 @@ async function SaleSectionWithDB() {
 async function TestimonialsSection() {
   const testimonials = await prisma.testimonial.findMany({
     where: { active: true }, orderBy: { order: "asc" },
-    select: { name: true, imageUrl: true, text: true, rating: true },
-  }).then((rows) => rows.map((r) => ({ name: r.name, imageUrl: r.imageUrl, text: r.text, rating: r.rating })));
+    select: { name: true, imageUrl: true, photos: true, text: true, rating: true },
+  }).then((rows) => rows.map((r) => ({ name: r.name, imageUrl: r.imageUrl, photos: r.photos, text: r.text, rating: r.rating })));
   return <ScatterTestimonial initialTestimonials={testimonials} />;
 }
 

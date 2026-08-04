@@ -6,10 +6,10 @@ import MagicRings from "@/components/ui/magic-rings";
 import { getHeroConfig } from "@/lib/hero-config";
 
 export default function HeroCarousel({ initialCarouselImages }: { initialCarouselImages?: string[] }) {
-  const [config, setConfig] = useState(() => getHeroConfig(window.innerWidth));
+  const [config, setConfig] = useState(() => getHeroConfig(window.innerWidth, window.matchMedia("(pointer: coarse)").matches));
 
   useEffect(() => {
-    const onResize = () => setConfig(getHeroConfig(window.innerWidth));
+    const onResize = () => setConfig(getHeroConfig(window.innerWidth, window.matchMedia("(pointer: coarse)").matches));
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);

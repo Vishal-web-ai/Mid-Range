@@ -1,59 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import AddToCartButton from "@/components/storefront/add-to-cart-button";
 import { formatPrice } from "@/lib/utils";
-
-interface WishlistItem {
-  id: string;
-  createdAt: string;
-  product: {
-    id: string;
-    title: string;
-    slug: string;
-    price: number;
-    discountedPrice?: number | null;
-    size?: string | null;
-    images: string[];
-    status: string;
-  };
-}
-
-function getVisitorId(): string | null {
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem("midrange_visitor_id");
-}
+import { useWishlist } from "@/lib/wishlist-context";
 
 export default function WishlistPage() {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const visitorId = getVisitorId();
-    if (!visitorId) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLoading(false);
-      return;
-    }
-    fetch(`/api/wishlist?visitorId=${visitorId}`)
-      .then((r) => r.json())
-      .then((data) => setItems(Array.isArray(data) ? data : []))
-      .catch(() => setItems([]))
-      .finally(() => setLoading(false));
-  }, []);
-
-  async function removeItem(productId: string) {
-    const visitorId = getVisitorId();
-    if (!visitorId) return;
-    await fetch("/api/wishlist", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ visitorId, productId }),
-    });
-    setItems((prev) => prev.filter((item) => item.product.id !== productId));
-  }
+  const { ready, items, toggle } = useWishlist();
 
   return (
     <main className="py-8 sm:py-12">
@@ -62,7 +16,7 @@ export default function WishlistPage() {
           My <span className="text-signal-red">Wishlist</span>
         </h1>
 
-        {loading ? (
+        {!ready ? (
           <div className="mt-8">
             <div className="bg-dark-grey mb-8 h-4 w-16 animate-pulse rounded" />
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
@@ -97,55 +51,57 @@ export default function WishlistPage() {
               {items.length} {items.length === 1 ? "item" : "items"}
             </p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
-              {items.map((item) => (
+              {items.map((item) => {
+                const p = item.product;
+                return (
                 <div key={item.id} className="group relative">
-                  <Link href={`/products/${item.product.slug}`}>
+                  <Link href={`/products/${p.slug}`}>
                     <div className="bg-dark-grey relative aspect-[3/4] overflow-hidden rounded-lg">
                       <Image
-                        src={item.product.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
-                        alt={item.product.title}
+                        src={p.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
+                        alt={p.title}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {item.product.discountedPrice && (
+                      {p.discountedPrice && (
                         <span className="bg-signal-red text-ink-black absolute top-2 left-2 px-2 py-0.5 text-[10px] font-bold tracking-wider">
-                          -{Math.round(((item.product.price - item.product.discountedPrice) / item.product.price) * 100)}% OFF
+                          -{Math.round(((p.price - p.discountedPrice) / p.price) * 100)}% OFF
                         </span>
                       )}
                     </div>
                   </Link>
                   <div className="mt-2 flex flex-col gap-1">
-                    <Link href={`/products/${item.product.slug}`}>
+                    <Link href={`/products/${p.slug}`}>
                       <h3 className="text-light-grey truncate text-sm font-medium tracking-wider uppercase">
-                        {item.product.title}
+                        {p.title}
                       </h3>
                     </Link>
                     <div className="flex items-center gap-2">
-                      {item.product.discountedPrice ? (
+                      {p.discountedPrice ? (
                         <>
-                          <span className="text-steel-gray text-xs line-through">{formatPrice(item.product.price)}</span>
-                          <span className="text-signal-red text-sm font-bold">{formatPrice(item.product.discountedPrice)}</span>
+                          <span className="text-steel-gray text-xs line-through">{formatPrice(p.price)}</span>
+                          <span className="text-signal-red text-sm font-bold">{formatPrice(p.discountedPrice)}</span>
                         </>
                       ) : (
-                        <span className="text-signal-red text-sm font-bold">{formatPrice(item.product.price)}</span>
+                        <span className="text-signal-red text-sm font-bold">{formatPrice(p.price)}</span>
                       )}
                     </div>
                     <div className="mt-1 flex gap-2">
-                      {item.product.status !== "sold" && (
+                      {p.status !== "sold" && (
                         <AddToCartButton
-                          id={item.product.id}
-                          title={item.product.title}
-                          slug={item.product.slug}
-                          price={item.product.price}
-                          discountedPrice={item.product.discountedPrice}
-                          image={item.product.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
-                          size={item.product.size}
+                          id={p.id}
+                          title={p.title}
+                          slug={p.slug}
+                          price={p.price}
+                          discountedPrice={p.discountedPrice}
+                          image={p.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
+                          size={p.size}
                         />
                       )}
                       <button
                         type="button"
-                        onClick={() => removeItem(item.product.id)}
+                        onClick={() => toggle(p.id)}
                         className="bg-dark-grey hover:bg-signal-red/20 text-steel-gray hover:text-signal-red flex items-center justify-center rounded px-3 py-2 transition-colors"
                         aria-label="Remove from wishlist"
                       >
@@ -158,7 +114,8 @@ export default function WishlistPage() {
                     </div>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </>
         )}

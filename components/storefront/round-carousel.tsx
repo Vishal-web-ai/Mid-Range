@@ -7,21 +7,11 @@ import { getHeroConfig } from "@/lib/hero-config";
 import { isLowEndDevice } from "@/lib/device-capabilities";
 import { isPageReload } from "@/lib/page-reload";
 
-const fallbackImages = [
-  "/clothes/672414455_17861864229682647_3753836623058430552_n..jpg",
-  "/clothes/671244443_17861866125682647_1055540794517676545_n..jpg",
-  "/clothes/671172413_17861842770682647_7895852993908659170_n..jpg",
-  "/clothes/671106172_17861862861682647_9060639759909450645_n..jpg",
-  "/clothes/670981231_17861868180682647_8729711116844242284_n..jpg",
-  "/clothes/670954849_17861859261682647_6344359944749683983_n..jpg",
-  "/clothes/670885305_17861866086682647_4525697963580129592_n..jpg",
-];
-
 export default function RoundCarousel({ initialImages }: { initialImages?: string[] }) {
-  const [images, setImages] = useState(initialImages && initialImages.length > 0 ? initialImages : fallbackImages);
+  const [images, setImages] = useState(initialImages ?? []);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const angleRef = useRef(0);
-  const [config] = useState(() => getHeroConfig(window.innerWidth));
+  const [config] = useState(() => getHeroConfig(window.innerWidth, window.matchMedia("(pointer: coarse)").matches));
   const velocityRef = useRef(config.carousel.SPEED);
   const rxRef = useRef(config.carousel.RX);
   const ryRef = useRef(config.carousel.RY);
@@ -32,7 +22,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   const lowEnd = isLowEndDevice();
 
   useEffect(() => {
-    if (initialImages) return;
+    if (initialImages && initialImages.length > 0) return;
     const controller = new AbortController();
     fetch("/api/round-carousel", { signal: controller.signal })
       .then((res) => res.json())
@@ -48,7 +38,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
 
   useEffect(() => {
     function onResize() {
-      const c = getHeroConfig(window.innerWidth).carousel;
+      const c = getHeroConfig(window.innerWidth, window.matchMedia("(pointer: coarse)").matches).carousel;
       rxRef.current = c.RX;
       ryRef.current = c.RY;
       velocityRef.current = c.SPEED;
@@ -60,6 +50,8 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
 
   useEffect(() => {
     if (isPageReload()) sessionStorage.removeItem("midrange-hero-seen");
+
+    if (images.length === 0) return;
 
     if (sessionStorage.getItem("midrange-hero-seen")) {
       const total = images.length;
@@ -138,7 +130,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
   }, []);
 
   useEffect(() => {
-    if (!orbitReady) return;
+    if (!orbitReady || images.length === 0) return;
 
     const total = images.length;
     const step = (2 * Math.PI) / total;

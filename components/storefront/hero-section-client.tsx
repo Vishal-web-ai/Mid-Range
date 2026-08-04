@@ -1,9 +1,14 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const HeroCarousel = dynamic(() => import("@/components/storefront/hero-carousel"), { ssr: false });
+import { useEffect, useState } from "react";
+import HeroCarousel from "@/components/storefront/hero-carousel";
 
 export default function HeroSectionClient({ initialCarouselImages }: { initialCarouselImages?: string[] }) {
-  return <HeroCarousel initialCarouselImages={initialCarouselImages} />;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  return mounted ? <HeroCarousel initialCarouselImages={initialCarouselImages} /> : null;
 }

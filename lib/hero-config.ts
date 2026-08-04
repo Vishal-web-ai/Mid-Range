@@ -40,13 +40,13 @@ const KEYFRAMES: Keyframe[] = [
   },
   {
     width: 1024,
-    rings: { ringCount: 4, attenuation: 12, lineThickness: 3, baseRadius: 0.8, radiusStep: 0.13, opacity: 0.6, rotation: 22 },
+    rings: { ringCount: 4, attenuation: 12, lineThickness: 3, baseRadius: 1.02, radiusStep: 0.156, opacity: 0.6, rotation: 22 },
     carousel: { RX: 310, RY: 195, CARD: 215, SPEED: 0.045 },
   },
   {
     width: 1440,
-    rings: { ringCount: 4, attenuation: 10, lineThickness: 3, baseRadius: 0.9, radiusStep: 0.15, opacity: 0.5, rotation: 0 },
-    carousel: { RX: 400, RY: 250, CARD: 260, SPEED: 0.045 },
+    rings: { ringCount: 4, attenuation: 10, lineThickness: 3, baseRadius: 1.09, radiusStep: 0.18, opacity: 0.5, rotation: 0 },
+    carousel: { RX: 400, RY: 250, CARD: 230, SPEED: 0.045 },
   },
 ];
 
@@ -74,9 +74,18 @@ function interpolate(a: Keyframe, b: Keyframe, t: number): HeroConfig {
   };
 }
 
-export function getHeroConfig(width: number): HeroConfig {
+export function getHeroConfig(width: number, coarsePointer = false): HeroConfig {
   if (width <= KEYFRAMES[0].width) {
     return { rings: { ...KEYFRAMES[0].rings }, carousel: { ...KEYFRAMES[0].carousel } };
+  }
+
+  const isTablet = (width >= 768 && width < 1024) || (width >= 1024 && width <= 1366 && coarsePointer);
+  if (isTablet) {
+    const tablet = KEYFRAMES.find((k) => k.width === 1024)!;
+    return {
+      rings: { ringCount: 6, attenuation: 24, lineThickness: 2, baseRadius: 0.5, radiusStep: 0.08, opacity: 1, rotation: 90 },
+      carousel: { ...tablet.carousel },
+    };
   }
 
   for (let i = 1; i < KEYFRAMES.length; i++) {
