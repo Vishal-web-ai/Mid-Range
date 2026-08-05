@@ -14,7 +14,7 @@ interface Props {
 export default function ProductImageGallery({ images, title }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const mainImage = images[selectedIndex] ?? "https://picsum.photos/seed/placeholder/600/750";
+  const mainImage = images[selectedIndex] ?? "/placeholder.png";
 
   function prev() {
     setSelectedIndex((i) => (i === 0 ? images.length - 1 : i - 1));

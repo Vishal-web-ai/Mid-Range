@@ -58,7 +58,7 @@ export default function WishlistPage() {
                   <Link href={`/products/${p.slug}`}>
                     <div className="bg-dark-grey relative aspect-[3/4] overflow-hidden rounded-lg">
                       <Image
-                        src={p.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
+                        src={p.images[0] || "/placeholder.png"}
                         alt={p.title}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
@@ -95,7 +95,7 @@ export default function WishlistPage() {
                           slug={p.slug}
                           price={p.price}
                           discountedPrice={p.discountedPrice}
-                          image={p.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
+                          image={p.images[0] || "/placeholder.png"}
                           size={p.size}
                           className="flex-1 min-w-0"
                         />

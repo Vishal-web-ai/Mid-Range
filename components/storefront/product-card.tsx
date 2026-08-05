@@ -60,7 +60,7 @@ export default function ProductCard({
   delay = 0,
 }: ProductCardProps) {
   const isSold = status === "sold";
-  const src = images[0] ?? "https://picsum.photos/seed/placeholder/400/500";
+  const src = images[0] ?? "/placeholder.png";
   const hasDiscount = discountedPrice != null && discountedPrice < price;
   const discountPercent = hasDiscount
     ? Math.round(((price - discountedPrice) / price) * 100)

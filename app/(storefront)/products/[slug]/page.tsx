@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
   const price = product.discountedPrice ?? product.price;
   const description = `${product.title} — ${formatPrice(price)}${product.category ? ` | ${product.category}` : ""}${product.condition ? ` | ${product.condition}` : ""}${product.size ? ` | Size ${product.size}` : ""}. Shop thrift finds at MidRange.`;
-  const image = product.images[0] ?? "https://picsum.photos/seed/placeholder/600/750";
+  const image = product.images[0] ?? "/placeholder.png";
 
   return {
     title: product.title,
@@ -41,7 +41,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const mainImage = product.images[0] ?? "https://picsum.photos/seed/placeholder/600/750";
+  const mainImage = product.images[0] ?? "/placeholder.png";
 
   return (
     <main className="py-8 sm:py-12">

@@ -5,6 +5,7 @@ import {
   useContext,
   useCallback,
   useEffect,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -28,6 +29,7 @@ type CartContextValue = {
   clearCart: () => void;
   getCartTotal: () => number;
   getItemCount: () => number;
+  validateCart: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -53,6 +55,7 @@ function saveCart(items: CartItem[]) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const itemsRef = useRef<CartItem[]>([]);
 
   useEffect(() => {
     setItems(loadCart());
@@ -60,9 +63,48 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
+    itemsRef.current = items;
+  }, [items]);
+
+  useEffect(() => {
     if (!hydrated) return;
     saveCart(items);
   }, [items, hydrated]);
+
+  const validateCart = useCallback(() => {
+    if (itemsRef.current.length === 0) return;
+    fetch("/api/products", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error("fetch failed");
+        return res.json();
+      })
+      .then((products: { id: string; status: string }[]) => {
+        const validIds = new Set(
+          products.filter((p) => p.status !== "sold").map((p) => p.id)
+        );
+        setItems((prev) => {
+          const next = prev.filter((i) => validIds.has(i.id));
+          return next.length === prev.length ? prev : next;
+        });
+      })
+      .catch(() => {
+        // network/API error — keep cart as-is
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    validateCart();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") validateCart();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onVisible);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onVisible);
+    };
+  }, [hydrated, validateCart]);
 
   const addItem = useCallback((incoming: CartItem) => {
     setItems((prev) => {
@@ -112,6 +154,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         clearCart,
         getCartTotal,
         getItemCount,
+        validateCart,
       }}
     >
       {children}
