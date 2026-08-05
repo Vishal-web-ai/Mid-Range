@@ -12,20 +12,20 @@ export default function Footer() {
     <footer className="relative">
       <div className="h-[2px] bg-signal-red" />
 
-      <div className={isHome ? "border-steel-gray/20 border-t py-12" : "border-steel-gray/20 border-t py-5"}>
+      <div className={isHome ? "border-steel-gray/20 border-t py-6" : "border-steel-gray/20 border-t py-5"}>
         <div className="container-wide">
-          <div className={isHome ? "mb-12" : "mb-4"}>
-            <Link href="/" className="flex items-center" aria-label="MidRange">
+          <div className={isHome ? "mb-8" : "mb-4"}>
+            <Link href="/" className="flex items-center justify-center" aria-label="MidRange">
               <Image
-                src="/logo/logo.png"
+                src="/logo/logo-footer.png"
                 alt="MidRange"
-                width={1536}
-                height={1024}
-                className={isHome ? "h-8 w-auto" : "h-6 w-auto"}
+                width={1118}
+                height={146}
+                className="h-auto w-80 sm:h-20 sm:w-auto md:h-24 lg:h-28"
               />
             </Link>
             <p className={isHome
-              ? "text-steel-gray mt-3 text-lg font-semibold leading-tight"
+              ? "text-steel-gray mt-3 text-center text-lg font-semibold leading-tight sm:text-2xl md:text-3xl"
               : "text-steel-gray mt-1 text-xs font-semibold leading-tight"
             }>
               One-of-one thrift finds.

@@ -14,7 +14,7 @@ export default function SmoothScroll() {
   useEffect(() => {
     const lenis = new Lenis({
       smoothWheel: true,
-      syncTouch: true,
+      syncTouch: false,
       duration: WHEEL_DURATION,
       easing: WHEEL_EASING,
       wheelMultiplier: 1,

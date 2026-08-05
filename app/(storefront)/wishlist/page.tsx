@@ -47,8 +47,8 @@ export default function WishlistPage() {
           </div>
         ) : (
           <>
-            <p className="text-steel-gray mb-8 text-sm">
-              {items.length} {items.length === 1 ? "item" : "items"}
+            <p className="text-steel-gray mb-8 text-sm font-semibold">
+              {items.length} {items.length === 1 ? "item" : "items"} in your cart
             </p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
               {items.map((item) => {
@@ -97,6 +97,7 @@ export default function WishlistPage() {
                           discountedPrice={p.discountedPrice}
                           image={p.images[0] || "https://picsum.photos/seed/placeholder/400/533"}
                           size={p.size}
+                          className="flex-1 min-w-0"
                         />
                       )}
                       <button
