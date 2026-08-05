@@ -23,6 +23,7 @@ interface StaggeredMenuProps {
   layerColors?: [string, string, string];
   menuBg?: string;
   textColor?: string;
+  showWishlist?: boolean;
 }
 
 type Phase = "closed" | "entering" | "open" | "closing";
@@ -35,6 +36,7 @@ export default function StaggeredMenu({
   layerColors = ["#E11D2E", "#FFFFFF", "#0A0A0A"],
   menuBg = "#FFFFFF",
   textColor = "#0A0A0A",
+  showWishlist = true,
 }: StaggeredMenuProps) {
   const [phase, setPhase] = useState<Phase>("closed");
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -202,19 +204,21 @@ export default function StaggeredMenu({
         </ul>
 
         {/* Wishlist */}
-        <Link
-          href="/wishlist"
-          onClick={onClose}
-          className={`flex items-center gap-2 mt-8 font-bold text-2xl uppercase tracking-tight no-underline transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] text-signal-red ${
-            showItems ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-          }`}
-          style={{ transitionDelay: showItems ? "400ms" : "0ms" }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-          Wishlist
-        </Link>
+        {showWishlist && (
+          <Link
+            href="/wishlist"
+            onClick={onClose}
+            className={`flex items-center gap-2 mt-8 font-bold text-2xl uppercase tracking-tight no-underline transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] text-signal-red ${
+              showItems ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+            }`}
+            style={{ transitionDelay: showItems ? "400ms" : "0ms" }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            Wishlist
+          </Link>
+        )}
       </nav>
     </div>
   );

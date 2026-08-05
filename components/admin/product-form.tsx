@@ -16,6 +16,7 @@ interface Product {
   condition: string | null;
   gender: string | null;
   details: string[];
+  specifications: { label: string; value: string }[];
   images: string[];
   status: string;
   createdAt: Date | string;
@@ -23,6 +24,14 @@ interface Product {
 
 const CATEGORIES = ["Jackets", "Tops", "Bottoms", "Dresses", "Accessories"] as const;
 const RATINGS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
+const SPEC_EXAMPLES = [
+  { label: "Fit", value: "Oversized Fit" },
+  { label: "Fabric", value: "100% Premium Cotton" },
+  { label: "Design", value: "Solid" },
+  { label: "Sleeve", value: "Half Sleeve" },
+  { label: "Neck", value: "Round Neck" },
+  { label: "Occasion", value: "Casual Wear" },
+] as const;
 
 interface ProductFormProps {
   product: Product | null;
@@ -44,9 +53,11 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
   );
   const [condition, setCondition] = useState(product?.condition ?? "");
   const [gender, setGender] = useState(product?.gender ?? "");
-  const [details, setDetails] = useState<string[]>(product?.details?.length ? [...product.details] : []);
-  const [newDetail, setNewDetail] = useState("");
-  const [detailsDone, setDetailsDone] = useState(false);
+  const [specifications, setSpecifications] = useState<{ label: string; value: string }[]>(
+    product?.specifications?.length
+      ? product.specifications.map((s) => ({ label: s.label, value: s.value }))
+      : [{ label: "", value: "" }, { label: "", value: "" }, { label: "", value: "" }],
+  );
   const [imageUrls, setImageUrls] = useState<string[]>(
     product?.images?.length ? [...product.images] : [""],
   );
@@ -66,16 +77,16 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
     setImageUrls((prev) => prev.map((url, i) => (i === index ? value : url)));
   }
 
-  function addDetail() {
-    const trimmed = newDetail.trim();
-    if (trimmed && !details.includes(trimmed)) {
-      setDetails((prev) => [...prev, trimmed]);
-      setNewDetail("");
-    }
+  function addSpecification() {
+    setSpecifications((prev) => [...prev, { label: "", value: "" }]);
   }
 
-  function removeDetail(index: number) {
-    setDetails((prev) => prev.filter((_, i) => i !== index));
+  function updateSpecification(index: number, field: "label" | "value", value: string) {
+    setSpecifications((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
+  }
+
+  function removeSpecification(index: number) {
+    setSpecifications((prev) => prev.filter((_, i) => i !== index));
   }
 
   const effectiveCategory = category === "__custom" ? customCategory.trim() : category;
@@ -112,7 +123,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
       title: trimmedTitle,
       price: pricePaise,
       images: trimmedUrls,
-      details: details.length > 0 ? details : undefined,
+      specifications: specifications.length > 0 ? specifications : undefined,
     };
 
     if (discountedPaise) body.discountedPrice = discountedPaise;
@@ -157,7 +168,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
 
       {/* Title */}
       <div>
-        <label htmlFor="title" className="text-steel-gray mb-1 block text-xs font-medium">
+        <label htmlFor="title" className="text-light-grey mb-1 block text-xs font-medium">
           Title *
         </label>
         <input
@@ -173,7 +184,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
       {/* Price & Discounted Price */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="price" className="text-steel-gray mb-1 block text-xs font-medium">
+          <label htmlFor="price" className="text-light-grey mb-1 block text-xs font-medium">
             Actual Price (₹) *
           </label>
           <input
@@ -188,7 +199,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
           />
         </div>
         <div>
-          <label htmlFor="discountedPrice" className="text-steel-gray mb-1 block text-xs font-medium">
+          <label htmlFor="discountedPrice" className="text-light-grey mb-1 block text-xs font-medium">
             Discounted Price (₹)
           </label>
           <input
@@ -213,7 +224,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
       {/* Size, Gender, Condition */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div>
-          <label htmlFor="size" className="text-steel-gray mb-1 block text-xs font-medium">
+          <label htmlFor="size" className="text-light-grey mb-1 block text-xs font-medium">
             Size
           </label>
           <input
@@ -228,7 +239,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         </div>
 
         <div>
-          <label className="text-steel-gray mb-1 block text-xs font-medium">
+          <label className="text-light-grey mb-1 block text-xs font-medium">
             Gender
           </label>
           <CustomSelect
@@ -244,7 +255,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         </div>
 
         <div>
-          <label className="text-steel-gray mb-1 block text-xs font-medium">
+          <label className="text-light-grey mb-1 block text-xs font-medium">
             Condition
           </label>
           <CustomSelect
@@ -258,7 +269,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
 
       {/* Category */}
       <div>
-        <label className="text-steel-gray mb-1 block text-xs font-medium">
+        <label className="text-light-grey mb-1 block text-xs font-medium">
           Category
         </label>
         <CustomSelect
@@ -281,84 +292,57 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         )}
       </div>
 
-      {/* Details */}
+      {/* Description */}
       <div>
-        <label className="text-steel-gray mb-1 block text-xs font-medium">
-          Product Details
+        <label className="text-light-grey mb-1 block text-xs font-medium">
+          Description
         </label>
-        {details.length > 0 && (
-          <ul className="mb-2 flex flex-col gap-1">
-            {details.map((detail, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-2 rounded border border-steel-gray bg-ink-black px-3 py-1.5 text-sm text-light-grey"
-              >
-                <span className="text-signal-red">+</span>
-                <span className="flex-1">{detail}</span>
-                <button
-                  type="button"
-                  onClick={() => removeDetail(i)}
-                  className="text-steel-gray hover:text-signal-red shrink-0 text-xs transition-colors"
-                >
-                  ✕
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-        {detailsDone ? (
-          <button
-            type="button"
-            onClick={() => setDetailsDone(false)}
-            className="text-steel-gray mt-2 text-xs transition-colors hover:text-light-grey"
-          >
-            + Add more details
-          </button>
-        ) : (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={newDetail}
-              onChange={(e) => setNewDetail(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  addDetail();
-                }
-              }}
-              className={cn(inputClass, "flex-1")}
-              placeholder="e.g. 100% Cotton, Made in India..."
-            />
-            <button
-              type="button"
-              onClick={addDetail}
-              disabled={!newDetail.trim()}
-              className="bg-dark-grey text-light-grey hover:border-signal-red shrink-0 rounded border border-steel-gray px-3 py-2 text-sm font-semibold transition-colors disabled:opacity-40"
-            >
-              + Add
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const trimmed = newDetail.trim();
-                if (trimmed && !details.includes(trimmed)) {
-                  setDetails((prev) => [...prev, trimmed]);
-                }
-                setNewDetail("");
-                setDetailsDone(true);
-              }}
-              disabled={details.length === 0 && !newDetail.trim()}
-              className="shrink-0 rounded border border-green-900 bg-green-900 px-3 py-2 text-sm font-semibold text-green-400 transition-colors hover:bg-green-800 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Done
-            </button>
+        {specifications.length > 0 && (
+          <div className="mb-2 flex flex-col gap-2">
+            {specifications.map((spec, i) => {
+              const example = SPEC_EXAMPLES[i % SPEC_EXAMPLES.length];
+              return (
+                <div key={i} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={spec.label}
+                    onChange={(e) => updateSpecification(i, "label", e.target.value)}
+                    className={cn(inputClass, "flex-1")}
+                    placeholder={`e.g. ${example.label}`}
+                  />
+                  <span className="text-steel-gray">:</span>
+                  <input
+                    type="text"
+                    value={spec.value}
+                    onChange={(e) => updateSpecification(i, "value", e.target.value)}
+                    className={cn(inputClass, "flex-[2]")}
+                    placeholder={`e.g. ${example.value}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSpecification(i)}
+                    className="text-signal-red shrink-0 text-xs transition-opacity hover:opacity-70"
+                    aria-label="Remove specification"
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
+        <button
+          type="button"
+          onClick={addSpecification}
+          className="text-signal-red mt-2 text-xs font-medium transition-opacity hover:opacity-70"
+        >
+          + Add More Descriptions
+        </button>
       </div>
 
       {/* Images */}
       <div>
-        <label className="text-steel-gray mb-1 block text-xs font-medium">Images *</label>
+        <label className="text-light-grey mb-1 block text-xs font-medium">Images *</label>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {imageUrls.map((url, i) => (
             <div key={i} className="relative">
@@ -367,7 +351,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
                 <button
                   type="button"
                   onClick={() => removeImageField(i)}
-                  className="text-steel-gray hover:text-signal-red absolute -top-2 -right-2 z-10 rounded-full bg-dark-grey p-1 transition-colors"
+                  className="text-signal-red hover:opacity-70 absolute -top-2 -right-2 z-10 rounded-full bg-dark-grey p-1 transition-opacity"
                   aria-label="Remove image"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -386,7 +370,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         <button
           type="button"
           onClick={addImageField}
-          className="text-steel-gray hover:text-signal-red mt-2 text-xs transition-colors"
+          className="text-signal-red hover:opacity-70 mt-2 text-xs transition-opacity"
         >
           + Add another image
         </button>

@@ -9,20 +9,13 @@ interface ImagePanZoomProps {
   alt: string;
   className?: string;
   zoom?: number;
+  children?: React.ReactNode;
 }
 
-export function ImagePanZoom({ src, alt, className = "", zoom = 2 }: ImagePanZoomProps) {
+export function ImagePanZoom({ src, alt, className = "", zoom = 2, children }: ImagePanZoomProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  const [naturalRatio, setNaturalRatio] = useState<number | null>(null);
-
-  function handleImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
-    const img = e.currentTarget;
-    if (img.naturalWidth && img.naturalHeight) {
-      setNaturalRatio(img.naturalWidth / img.naturalHeight);
-    }
-  }
 
   function getTranslate(e: React.MouseEvent) {
     const el = containerRef.current;
@@ -50,11 +43,12 @@ export function ImagePanZoom({ src, alt, className = "", zoom = 2 }: ImagePanZoo
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden ${className}`}
-      style={{
-        cursor: hovered ? magnifierCursor : "default",
-        ...(naturalRatio ? { aspectRatio: `${naturalRatio}` } : {}),
-      }}
+        className={`relative mx-auto w-full overflow-hidden ${className}`}
+        style={{
+          cursor: hovered ? magnifierCursor : "default",
+          aspectRatio: "1 / 1",
+          maxWidth: "min(100%, 75vh)",
+        }}
       onMouseEnter={handleMouseEnter}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
@@ -65,12 +59,12 @@ export function ImagePanZoom({ src, alt, className = "", zoom = 2 }: ImagePanZoo
         alt={alt}
         draggable={false}
         className="h-full w-full object-contain"
-        onLoad={handleImageLoad}
         style={{
           transform: `scale(${hovered ? zoom : 1}) translate(${translate.x / zoom}px, ${translate.y / zoom}px)`,
           transition: "transform 0.3s ease-out",
         }}
       />
+      {children}
     </div>
   );
 }

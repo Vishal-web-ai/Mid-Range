@@ -36,63 +36,65 @@ export default function ProductImageGallery({ images, title }: Props) {
           <ImagePanZoom
             src={getMediumUrl(mainImage)}
             alt={title}
-            className="bg-dark-grey w-full rounded-lg overflow-hidden"
+            className="bg-dark-grey rounded-lg overflow-hidden"
             zoom={2}
-          />
+          >
+            {images.length > 1 && (
+              <>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Previous image"
+                  onClick={(e) => { e.stopPropagation(); prev(); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); prev(); } }}
+                  className="absolute top-1/2 left-2 z-10 hidden -translate-y-1/2 cursor-pointer items-center justify-center text-signal-red transition-colors hover:text-signal-red/70 select-none sm:flex"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </span>
+                <span
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Next image"
+                  onClick={(e) => { e.stopPropagation(); next(); }}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); next(); } }}
+                  className="absolute top-1/2 right-2 z-10 hidden -translate-y-1/2 cursor-pointer items-center justify-center text-signal-red transition-colors hover:text-signal-red/70 select-none sm:flex"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </>
+            )}
+          </ImagePanZoom>
         </button>
-        {images.length > 1 && (
-          <>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); prev(); }}
-              className="absolute top-1/2 left-2 z-10 flex -translate-y-1/2 items-center justify-center text-signal-red transition-colors hover:text-signal-red/70"
-              aria-label="Previous image"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={(e) => { e.stopPropagation(); next(); }}
-              className="absolute top-1/2 right-2 z-10 flex -translate-y-1/2 items-center justify-center text-signal-red transition-colors hover:text-signal-red/70"
-              aria-label="Next image"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            <div className="absolute right-3 bottom-3 z-10 rounded-full bg-ink-black/60 px-2.5 py-0.5 text-xs font-medium text-light-grey">
-              {selectedIndex + 1} / {images.length}
-            </div>
-          </>
-        )}
-        {images.length > 1 && (
-          <div className="mt-3 grid grid-cols-4 gap-2">
-            {images.map((src, i) => (
-              <button
-                key={src}
-                type="button"
-                onClick={() => setSelectedIndex(i)}
-                className={`bg-dark-grey relative aspect-square overflow-hidden rounded transition-all ${
-                  i === selectedIndex
-                    ? "ring-2 ring-signal-red"
-                    : "opacity-60 hover:opacity-100"
-                }`}
-              >
-                <Image
-                  src={getThumbnailUrl(src)}
-                  alt={`${title} ${i + 1}`}
-                  fill
-                  sizes="25vw"
-                  className="object-cover"
-                  loading={Math.abs(i - selectedIndex) <= 2 ? "eager" : "lazy"}
-                />
-              </button>
-            ))}
-          </div>
-        )}
       </div>
+      {images.length > 1 && (
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          {images.map((src, i) => (
+            <button
+              key={src}
+              type="button"
+              onClick={() => setSelectedIndex(i)}
+              className={`bg-dark-grey relative aspect-square overflow-hidden rounded transition-all ${
+                i === selectedIndex
+                  ? "ring-2 ring-signal-red"
+                  : "opacity-60 hover:opacity-100"
+              }`}
+            >
+              <Image
+                src={getThumbnailUrl(src)}
+                alt={`${title} ${i + 1}`}
+                fill
+                sizes="25vw"
+                className="object-cover"
+                loading={Math.abs(i - selectedIndex) <= 2 ? "eager" : "lazy"}
+              />
+            </button>
+          ))}
+        </div>
+      )}
 
       {lightboxOpen && (
         <ProductImageLightbox

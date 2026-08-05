@@ -13,10 +13,16 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tip, setTip] = useState<string | null>(null);
+  const [tipGood, setTipGood] = useState(false);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      setTip(null);
+      setTipGood(false);
+      return;
+    }
 
     if (!file.type.startsWith("image/")) {
       setError("Please select an image file.");
@@ -29,6 +35,28 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
     }
 
     setError(null);
+    setTip(null);
+    setTipGood(false);
+
+    const dims = await new Promise<{ w: number; h: number }>((resolve) => {
+      const img = new Image();
+      img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight });
+      img.onerror = () => resolve({ w: 0, h: 0 });
+      img.src = URL.createObjectURL(file);
+    });
+
+    if (dims.w && dims.h) {
+      const ratio = dims.w / dims.h;
+      if (ratio >= 0.9 && ratio <= 1.1) {
+        setTip("Square 1:1 — displays perfectly, no bars or cropping.");
+        setTipGood(true);
+      } else {
+        const ratioText = ratio >= 1 ? `1:${(ratio).toFixed(2).replace(/0$/, "")}` : `${(1 / ratio).toFixed(2).replace(/0$/, "")}:1`;
+        setTip(`This image is ${dims.w}\u00d7${dims.h} (${ratioText}). Tip: use a 1:1 square image to avoid bars or cropping.`);
+        setTipGood(false);
+      }
+    }
+
     setUploading(true);
 
     try {
@@ -128,6 +156,9 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
       )}
 
       {error && <p className="text-signal-red text-xs">{error}</p>}
+      {tip && !error && (
+        <p className={cn("text-xs", tipGood ? "text-green-400" : "text-signal-red")}>{tip}</p>
+      )}
     </div>
   );
 }

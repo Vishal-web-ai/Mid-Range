@@ -503,7 +503,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
       >
         <div className="absolute inset-0 bg-black/70" onClick={closeCard} />
 
-        <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 sm:gap-4">
+        <div className="absolute top-1/2 left-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-2 sm:flex sm:gap-4">
           {selectedIndex > 0 && (
             <button
               onClick={(e) => { e.stopPropagation(); goTo(selectedIndex - 1); }}
@@ -542,10 +542,10 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
             <>
               <button
                 onClick={closeCard}
-                className="absolute top-7 right-7 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white transition-opacity hover:opacity-70"
+                className="absolute top-7 right-7 z-20 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-opacity hover:opacity-70 sm:top-7 sm:right-7 sm:h-8 sm:w-8"
                 aria-label="Close"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="h-4 w-4">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="h-3 w-3 sm:h-4 sm:w-4">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>

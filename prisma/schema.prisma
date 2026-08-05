@@ -17,6 +17,7 @@ model Product {
   condition       String?  // rating 1/10 - 10/10
   gender          String?  // men | women
   details         String[] // product detail bullet points
+  specifications  Json[]   @default([]) // [{ label, value }] spec sheet entries
   images          String[] // array of image URLs
   status          String   @default("available") // available | sold
   createdAt       DateTime @default(now())

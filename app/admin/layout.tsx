@@ -82,6 +82,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         items={NAV_ITEMS.map((item) => ({ label: item.label, href: item.href }))}
+        showWishlist={false}
       />
     </div>
   );

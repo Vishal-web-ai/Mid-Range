@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Fragment } from "react";
 import AddToCartButton from "@/components/storefront/add-to-cart-button";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
 import ShareCircle from "@/components/storefront/share-circle";
@@ -44,17 +45,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
 
   return (
     <main className="py-8 sm:py-12">
-      <div className="container-storefront">
-        <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-          <ScrollReveal className="w-full lg:w-1/2">
+      <div className="w-full px-4 sm:px-6 lg:px-10">
+        <div className="flex flex-col gap-8 md:flex-row md:gap-4">
+          <ScrollReveal className="w-full md:w-1/2">
             <ProductImageGallery images={product.images} title={product.title} />
           </ScrollReveal>
 
-          <ScrollReveal delay={100} className="w-full lg:w-1/2">
+          <ScrollReveal delay={100} className="w-full md:w-1/2">
             <div className="flex flex-col gap-4">
-              <h1 className="font-hero text-light-grey text-2xl font-bold tracking-wider uppercase sm:text-3xl">
-                {product.title}
-              </h1>
+              <div className="flex items-start justify-between gap-3">
+                <h1 className="font-hero text-light-grey text-2xl font-bold tracking-wider uppercase sm:text-3xl">
+                  {product.title}
+                </h1>
+                <div className="md:hidden">
+                  <ShareCircle title={product.title} />
+                </div>
+              </div>
 
               {product.discountedPrice ? (
                 <div className="flex items-center gap-3">
@@ -63,7 +69,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   <span className="bg-signal-red text-ink-black px-2 py-0.5 text-xs font-bold tracking-wider">
                     -{Math.round(((product.price - product.discountedPrice) / product.price) * 100)}% OFF
                   </span>
-                  <ShareCircle title={product.title} className="ml-[1.25em]" />
+                  <div className="ml-[1.25em] hidden md:block">
+                    <ShareCircle title={product.title} />
+                  </div>
                 </div>
               ) : (
                 <p className="text-signal-red text-3xl font-bold">{formatPrice(product.price)}</p>
@@ -91,19 +99,9 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <p className="text-steel-gray text-sm">Category: {product.category}</p>
               )}
 
-              {product.details.length > 0 && (
-                <ul className="flex flex-col gap-1">
-                  {product.details.map((detail, i) => (
-                    <li key={i} className="text-light-grey flex items-start gap-2 text-sm">
-                      <span className="text-signal-red mt-0.5">+</span>
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
               {product.status !== "sold" && (
                 <div className="flex flex-col gap-3">
+                  <WishlistButton productId={product.id} product={product} />
                   <AddToCartButton
                     id={product.id}
                     title={product.title}
@@ -113,9 +111,33 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                     image={mainImage}
                     size={product.size}
                   />
-                  <WishlistButton productId={product.id} product={product} />
                 </div>
               )}
+
+              {product.specifications && (product.specifications as { label: string; value: string }[]).length > 0 ? (
+                <div className="border-steel-gray/40 grid grid-cols-[1fr_1px_1fr] gap-y-px border bg-steel-gray/40">
+                  {(product.specifications as { label: string; value: string }[]).map((spec, i) => (
+                    <Fragment key={i}>
+                      <div className="bg-[#0F0F0F] px-4 py-2.5">
+                        <span className="text-steel-gray text-sm">{spec.label}</span>
+                      </div>
+                      <div aria-hidden />
+                      <div className="bg-[#0F0F0F] px-4 py-2.5 text-right">
+                        <span className="text-light-grey text-sm font-medium">{spec.value}</span>
+                      </div>
+                    </Fragment>
+                  ))}
+                </div>
+              ) : product.details.length > 0 ? (
+                <ul className="flex flex-col gap-1">
+                  {product.details.map((detail, i) => (
+                    <li key={i} className="text-light-grey flex items-start gap-2 text-sm">
+                      <span className="text-signal-red mt-0.5">+</span>
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </div>
           </ScrollReveal>
         </div>

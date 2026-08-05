@@ -18,6 +18,7 @@ interface Product {
   condition: string | null;
   gender: string | null;
   details: string[];
+  specifications: { label: string; value: string }[];
   images: string[];
   status: string;
   createdAt: Date | string;
@@ -105,7 +106,7 @@ export function ProductList({ products }: { products: Product[] }) {
       {showForm && (
         <div className="border-steel-gray bg-dark-grey mb-6 rounded border p-4 sm:p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-light-grey font-hero text-lg font-bold">
+            <h2 className="text-signal-red font-hero text-lg font-bold">
               {editing ? "Edit Product" : "Add New Product"}
             </h2>
             <button
@@ -113,7 +114,7 @@ export function ProductList({ products }: { products: Product[] }) {
                 setShowForm(false);
                 setEditing(null);
               }}
-              className="text-steel-gray hover:text-light-grey transition-colors"
+              className="text-signal-red hover:opacity-70 transition-opacity"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path

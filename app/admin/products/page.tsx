@@ -4,14 +4,19 @@ import { ProductList } from "@/components/admin/product-list";
 export const dynamic = "force-dynamic";
 
 export default async function AdminProductsPage() {
-  const products = await prisma.product.findMany({
+  const rows = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
     select: {
       id: true, title: true, slug: true, price: true, discountedPrice: true,
       size: true, category: true, condition: true, gender: true,
-      details: true, images: true, status: true, createdAt: true,
+      details: true, specifications: true, images: true, status: true, createdAt: true,
     },
   });
+
+  const products = rows.map((p) => ({
+    ...p,
+    specifications: (p.specifications ?? []) as { label: string; value: string }[],
+  }));
 
   return (
     <div>

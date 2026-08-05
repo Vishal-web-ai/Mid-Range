@@ -14,6 +14,7 @@ const PRODUCT_SELECT = {
   condition: true,
   gender: true,
   details: true,
+  specifications: true,
 } as const;
 
 export const getProductBySlug = unstable_cache(
