@@ -26,7 +26,8 @@ export default function ProductImageGallery({ images, title }: Props) {
 
   return (
     <>
-      <div className="relative">
+      <div className="flex flex-col md:flex-row md:gap-3">
+        <div className="relative order-1 md:order-2 md:flex-1">
         <button
           type="button"
           onClick={() => setLightboxOpen(true)}
@@ -71,7 +72,7 @@ export default function ProductImageGallery({ images, title }: Props) {
         </button>
       </div>
       {images.length > 1 && (
-        <div className="mt-3 grid grid-cols-4 gap-2">
+        <div className="order-2 mt-3 grid grid-cols-4 gap-2 md:order-1 md:mt-[3em] md:flex md:w-[84px] md:shrink-0 md:flex-col md:gap-2">
           {images.map((src, i) => (
             <button
               key={src}
@@ -95,6 +96,7 @@ export default function ProductImageGallery({ images, title }: Props) {
           ))}
         </div>
       )}
+      </div>
 
       {lightboxOpen && (
         <ProductImageLightbox

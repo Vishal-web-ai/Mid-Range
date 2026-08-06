@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { Fragment } from "react";
 import AddToCartButton from "@/components/storefront/add-to-cart-button";
 import { WishlistButton } from "@/components/storefront/wishlist-button";
 import ShareCircle from "@/components/storefront/share-circle";
 import ScrollReveal from "@/components/ui/scroll-reveal";
 import ProductImageGallery from "@/components/storefront/product-image-gallery";
+import ProductDetails from "@/components/storefront/product-details";
 import { getProductBySlug } from "@/lib/product-utils";
 import { formatPrice } from "@/lib/utils";
 import type { Metadata } from "next";
@@ -114,30 +114,10 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 </div>
               )}
 
-              {product.specifications && (product.specifications as { label: string; value: string }[]).length > 0 ? (
-                <div className="border-steel-gray/40 grid grid-cols-[1fr_1px_1fr] gap-y-px border bg-steel-gray/40">
-                  {(product.specifications as { label: string; value: string }[]).map((spec, i) => (
-                    <Fragment key={i}>
-                      <div className="bg-[#0F0F0F] px-4 py-2.5">
-                        <span className="text-steel-gray text-sm">{spec.label}</span>
-                      </div>
-                      <div aria-hidden />
-                      <div className="bg-[#0F0F0F] px-4 py-2.5 text-right">
-                        <span className="text-light-grey text-sm font-medium">{spec.value}</span>
-                      </div>
-                    </Fragment>
-                  ))}
-                </div>
-              ) : product.details.length > 0 ? (
-                <ul className="flex flex-col gap-1">
-                  {product.details.map((detail, i) => (
-                    <li key={i} className="text-light-grey flex items-start gap-2 text-sm">
-                      <span className="text-signal-red mt-0.5">+</span>
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
+              <ProductDetails
+                specifications={product.specifications as { label: string; value: string }[] | null}
+                details={product.details}
+              />
             </div>
           </ScrollReveal>
         </div>

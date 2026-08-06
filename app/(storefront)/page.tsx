@@ -120,7 +120,7 @@ function HeroHeading() {
             return HERO_HEADINGS.map((line, lineIndex) => (
               <span key={lineIndex} style={{ display: "block" }}>
                 {line.text.split(" ").map((word, wordIndex, arr) => {
-                  const d = 0.3 + wi++ * 0.04;
+                  const d = 0.3 + wi++ * 0.1;
                   return (
                     <span
                       key={wordIndex}
@@ -135,7 +135,7 @@ function HeroHeading() {
             ));
           })()}
         </h1>
-        <div className="mt-6 pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
+        <div className="mt-6 pointer-events-auto hero-word" style={{ "--hero-delay": "1s" } as React.CSSProperties}>
           <Link href="/collections" className="btn-primary font-hero text-sm md:text-[17px]">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
@@ -156,7 +156,7 @@ function HeroHeading() {
             return HERO_HEADINGS.map((line, lineIndex) => (
               <span key={lineIndex} style={{ display: "block" }}>
                 {line.text.split(" ").map((word, wordIndex, arr) => {
-                  const d = 0.3 + wi++ * 0.04;
+                  const d = 0.3 + wi++ * 0.1;
                   return (
                     <span
                       key={wordIndex}
@@ -171,7 +171,7 @@ function HeroHeading() {
             ));
           })()}
         </h1>
-        <div className="mt-5 hero-cta-mobile pointer-events-auto hero-word" style={{ "--hero-delay": "0.9s" } as React.CSSProperties}>
+        <div className="mt-5 hero-cta-mobile pointer-events-auto hero-word" style={{ "--hero-delay": "1s" } as React.CSSProperties}>
           <Link href="/collections" className="btn-primary font-hero text-sm px-5 py-2.5">
             Start Hunting
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
@@ -218,7 +218,7 @@ async function TestimonialsSection() {
 
 async function ProductsSection() {
   const products = await prisma.product.findMany({
-    where: { status: "available" }, orderBy: { createdAt: "desc" }, take: 12,
+    where: { status: "available" }, orderBy: { createdAt: "desc" }, take: 8,
     select: {
       id: true, title: true, slug: true, price: true, discountedPrice: true,
       images: true, size: true, status: true,

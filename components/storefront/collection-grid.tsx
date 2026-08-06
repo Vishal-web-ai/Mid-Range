@@ -129,7 +129,7 @@ export default function CollectionGrid({
 
   return (
     <>
-      <div className="mb-5 flex items-center gap-2">
+      <div className="mb-5 flex items-center justify-center gap-2">
         <button
           type="button"
           onClick={() => setFilterOpen(true)}
@@ -161,10 +161,6 @@ export default function CollectionGrid({
           </svg>
           Sort
         </button>
-
-        <p className="text-steel-gray text-xs font-semibold sm:text-sm">
-          {sorted.length} {sorted.length === 1 ? "Piece" : "Pieces"} Available
-        </p>
       </div>
 
       <FilterModal

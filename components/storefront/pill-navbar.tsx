@@ -43,10 +43,9 @@ export default function PillNavbar() {
     <>
       <nav className={`pill-navbar sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
-          <div className="relative flex w-full items-center justify-between">
-            <Link
-              href="/"
-              className="relative z-10 flex shrink-0 items-center max-[769px]:-ml-[2.5em] min-[1440px]:-ml-[7em]"
+          <div className="pointer-events-none relative flex w-full items-center justify-between">
+            <div
+              className="pointer-events-none relative z-10 flex shrink-0 items-center max-[769px]:-ml-[2.5em] min-[1440px]:-ml-[7em]"
               aria-label="MidRange"
             >
               <Image
@@ -57,13 +56,13 @@ export default function PillNavbar() {
                 priority
                 className="h-[135px] w-auto lg:h-[250px]"
               />
-            </Link>
+            </div>
 
-            <div className="hidden items-center md:flex lg:-ml-[3em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
+            <div className="pointer-events-auto hidden items-center md:flex lg:-ml-[3em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
               <PillNavLinks />
             </div>
 
-            <div className="flex shrink-0 items-center gap-[12px] sm:gap-[16px]">
+            <div className="pointer-events-auto flex shrink-0 items-center gap-[12px] sm:gap-[16px]">
             <Link
               href="/wishlist"
               className="text-signal-red hidden items-center transition-colors hover:text-light-grey sm:flex"

@@ -94,8 +94,8 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
       });
 
       const total = images.length;
-      const stagger = 0.18;
-      const duration = 1.2;
+      const stagger = 0.1;
+      const duration = 0.9;
       cardsRef.current.forEach((card, i) => {
         if (!card) return;
         const targetAngle = (2 * Math.PI * i) / total;
@@ -118,7 +118,7 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
           i * stagger,
         );
       });
-    }, 500);
+    }, 400);
 
     return () => {
       cancelled = true;
@@ -217,6 +217,8 @@ export default function RoundCarousel({ initialImages }: { initialImages?: strin
                 width: cardSize,
                 height: cardSize,
                 willChange: "transform, opacity",
+                opacity: 0,
+                transform: "translate(-50%, -50%) translate(9999px, 0) scale(0.3)",
               }}
             >
               <Image
