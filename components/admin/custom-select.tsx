@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface CustomSelectProps {
   value: string;
   onChange: (value: string) => void;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string; accent?: boolean }[];
   placeholder?: string;
   className?: string;
 }
@@ -63,9 +63,11 @@ export function CustomSelect({ value, onChange, options, placeholder = "Select..
               }}
               className={cn(
                 "w-full px-3 py-2 text-left text-sm transition-colors",
-                option.value === value
-                  ? "bg-signal-red/10 text-signal-red"
-                  : "text-light-grey hover:bg-ink-black",
+                option.accent
+                  ? "text-signal-red hover:bg-ink-black"
+                  : option.value === value
+                    ? "bg-signal-red/10 text-signal-red"
+                    : "text-light-grey hover:bg-ink-black",
               )}
             >
               {option.label}

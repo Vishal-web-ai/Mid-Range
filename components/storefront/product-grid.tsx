@@ -4,7 +4,7 @@ import ProductCard from "@/components/storefront/product-card";
 type ProductRow = {
   id: string; title: string; slug: string; price: number;
   discountedPrice: number | null; images: string[];
-  size: string | null; status: string;
+  size: string | null; tag?: string | null; status: string;
 };
 
 export default function ProductGrid({ products }: { products: ProductRow[] }) {
@@ -46,6 +46,7 @@ export default function ProductGrid({ products }: { products: ProductRow[] }) {
                 discountedPrice={product.discountedPrice ?? undefined}
                 images={product.images}
                 size={product.size}
+                tag={product.tag}
                 status={product.status}
                 delay={i * 80}
               />

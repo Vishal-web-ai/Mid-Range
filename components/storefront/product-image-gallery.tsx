@@ -9,9 +9,10 @@ import { getMediumUrl, getThumbnailUrl } from "@/lib/cloudinary-utils";
 interface Props {
   images: string[];
   title: string;
+  tag?: string | null;
 }
 
-export default function ProductImageGallery({ images, title }: Props) {
+export default function ProductImageGallery({ images, title, tag }: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const mainImage = images[selectedIndex] ?? "/placeholder.png";
@@ -40,6 +41,11 @@ export default function ProductImageGallery({ images, title }: Props) {
             className="bg-dark-grey rounded-lg overflow-hidden"
             zoom={2}
           >
+            {tag && (
+              <span className="bg-signal-red text-ink-black absolute top-2 left-2 z-10 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+                {tag}
+              </span>
+            )}
             {images.length > 1 && (
               <>
                 <span

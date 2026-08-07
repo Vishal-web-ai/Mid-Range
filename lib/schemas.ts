@@ -19,6 +19,7 @@ export const ProductSchema = z.object({
   price: z.number().int().positive("Price must be positive"), // in paise
   discountedPrice: z.number().int().positive().optional(),
   size: z.string().max(20).optional(),
+  tag: z.string().max(50).nullable().optional(),
   category: z.string().max(100).optional(),
   condition: z.string().max(100).optional(),
   gender: z.enum(["men", "women", "unisex"]).optional(),

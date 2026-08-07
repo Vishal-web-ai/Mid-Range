@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, useTransition, type PointerEvent as ReactPointerEvent } from "react";
 import Image from "next/image";
 import { ImageUpload } from "./image-upload";
 import { PhotoPicker } from "./photo-picker";
@@ -68,12 +68,15 @@ function persistOrders(base: string, items: { id: string; order: number }[]) {
   }
 }
 
+const DOUBLE_TAP_MS = 300;
+
 function usePointerDrag(
   onReorder: (from: number, to: number) => void,
   onTap?: (index: number) => void
 ) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [armed, setArmed] = useState(false);
   const dragRef = useRef<{
     pointerId: number;
     dragIndex: number;
@@ -81,10 +84,41 @@ function usePointerDrag(
     x: number;
     y: number;
     moved: boolean;
+    armed: boolean;
   } | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastTapRef = useRef<{ time: number; index: number } | null>(null);
+
+  useEffect(() => () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+  }, []);
+
+  function clearTimers() {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (tapTimerRef.current) clearTimeout(tapTimerRef.current);
+    timerRef.current = null;
+    tapTimerRef.current = null;
+  }
 
   function onPointerDown(e: ReactPointerEvent, index: number) {
+    clearTimers();
     if ((e.target as HTMLElement).closest("button")) return;
+    const now = Date.now();
+    const armNow =
+      lastTapRef.current !== null &&
+      now - lastTapRef.current.time <= DOUBLE_TAP_MS &&
+      lastTapRef.current.index === index;
+    if (armNow) {
+      lastTapRef.current = null;
+    } else {
+      lastTapRef.current = { time: now, index };
+      tapTimerRef.current = setTimeout(() => {
+        lastTapRef.current = null;
+      }, DOUBLE_TAP_MS);
+    }
+
     dragRef.current = {
       pointerId: e.pointerId,
       dragIndex: index,
@@ -92,10 +126,13 @@ function usePointerDrag(
       x: e.clientX,
       y: e.clientY,
       moved: false,
+      armed: armNow,
     };
     setDragIndex(index);
     setOverIndex(index);
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+
+    if (armNow) setArmed(true);
   }
 
   function onPointerMove(e: ReactPointerEvent) {
@@ -104,6 +141,11 @@ function usePointerDrag(
     if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 8) return;
     d.moved = true;
     e.preventDefault();
+    if (!d.armed) {
+      clearTimers();
+      lastTapRef.current = null;
+      return;
+    }
     const card = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest?.(
       "[data-reorder-card]"
     );
@@ -117,23 +159,39 @@ function usePointerDrag(
   function onPointerUp(e: ReactPointerEvent) {
     const d = dragRef.current;
     if (!d || e.pointerId !== d.pointerId) return;
-    if (d.moved) {
+    clearTimers();
+    if (d.armed) {
       if (d.overIndex !== d.dragIndex) onReorder(d.dragIndex, d.overIndex);
-    } else {
-      onTap?.(d.dragIndex);
+      setArmed(false);
+    } else if (!d.moved) {
+      const index = d.dragIndex;
+      if (onTap) {
+        tapTimerRef.current = setTimeout(() => onTap(index), DOUBLE_TAP_MS + 20);
+      }
     }
     dragRef.current = null;
     setDragIndex(null);
     setOverIndex(null);
   }
 
-  return { dragIndex, overIndex, onPointerDown, onPointerMove, onPointerUp };
+  function onPointerCancel(e: ReactPointerEvent) {
+    const d = dragRef.current;
+    if (!d || e.pointerId !== d.pointerId) return;
+    clearTimers();
+    lastTapRef.current = null;
+    setArmed(false);
+    dragRef.current = null;
+    setDragIndex(null);
+    setOverIndex(null);
+  }
+
+  return { dragIndex, overIndex, armed, onPointerDown, onPointerMove, onPointerUp, onPointerCancel };
 }
 
-function dragClasses(dragIndex: number | null, overIndex: number | null, index: number) {
-  const isDragging = dragIndex === index;
-  const isTarget = overIndex === index && dragIndex !== null && dragIndex !== index;
-  return `${isDragging ? "opacity-50" : ""} ${isTarget ? "ring-2 ring-signal-red" : ""}`;
+function dragClasses(armed: boolean, dragIndex: number | null, overIndex: number | null, index: number) {
+  const isDragging = armed && dragIndex === index;
+  const isTarget = armed && overIndex === index && dragIndex !== null && dragIndex !== index;
+  return `${isDragging ? "z-50 ring-2 ring-light-grey shadow-2xl" : ""} ${isTarget ? "ring-2 ring-signal-red" : ""}`;
 }
 
 export function CustomizeManager({
@@ -304,6 +362,9 @@ export function CustomizeManager({
 
   return (
     <div className="space-y-12">
+      {(carouselDrag.armed || saleDrag.armed || testimonialDrag.armed) && (
+        <div className="pointer-events-none fixed inset-0 z-40 bg-ink-black/60" aria-hidden="true" />
+      )}
       {/* ======================== ROUND CAROUSEL ======================== */}
       <section>
         <h2 className="font-hero text-xl font-bold text-signal-red mb-6">
@@ -382,9 +443,9 @@ export function CustomizeManager({
                       onPointerDown={(e) => carouselDrag.onPointerDown(e, i)}
                       onPointerMove={carouselDrag.onPointerMove}
                       onPointerUp={carouselDrag.onPointerUp}
-                      onPointerCancel={carouselDrag.onPointerUp}
+                      onPointerCancel={carouselDrag.onPointerCancel}
                       onDragStart={(e) => e.preventDefault()}
-                      className={`${DRAG_CARD} ${dragClasses(carouselDrag.dragIndex, carouselDrag.overIndex, i)}`}
+                      className={`${DRAG_CARD} ${dragClasses(carouselDrag.armed, carouselDrag.dragIndex, carouselDrag.overIndex, i)}`}
                     >
                       <div className="relative aspect-square overflow-hidden rounded border border-steel-gray bg-ink-black">
                         <Image src={img.imageUrl} alt="Carousel" fill className="object-cover" unoptimized draggable={false} />
@@ -443,9 +504,9 @@ export function CustomizeManager({
                       onPointerDown={(e) => saleDrag.onPointerDown(e, i)}
                       onPointerMove={saleDrag.onPointerMove}
                       onPointerUp={saleDrag.onPointerUp}
-                      onPointerCancel={saleDrag.onPointerUp}
+                      onPointerCancel={saleDrag.onPointerCancel}
                       onDragStart={(e) => e.preventDefault()}
-                      className={`${DRAG_CARD} ${dragClasses(saleDrag.dragIndex, saleDrag.overIndex, i)}`}
+                      className={`${DRAG_CARD} ${dragClasses(saleDrag.armed, saleDrag.dragIndex, saleDrag.overIndex, i)}`}
                     >
                       <div className="relative aspect-square overflow-hidden rounded border border-steel-gray bg-ink-black">
                         <Image src={img.imageUrl} alt={img.altText} fill className="object-cover" unoptimized draggable={false} />
@@ -538,10 +599,10 @@ export function CustomizeManager({
                       onPointerDown={(e) => testimonialDrag.onPointerDown(e, i)}
                       onPointerMove={testimonialDrag.onPointerMove}
                       onPointerUp={testimonialDrag.onPointerUp}
-                      onPointerCancel={testimonialDrag.onPointerUp}
+                      onPointerCancel={testimonialDrag.onPointerCancel}
                       onDragStart={(e) => e.preventDefault()}
-                      title="Drag to reorder, tap to edit"
-                      className={`relative cursor-pointer rounded border border-steel-gray bg-ink-black p-3 touch-none select-none ${dragClasses(testimonialDrag.dragIndex, testimonialDrag.overIndex, i)}`}
+                      title="Double-click to drag, click to edit"
+                      className={`relative cursor-pointer rounded border border-steel-gray bg-ink-black p-3 touch-none select-none ${dragClasses(testimonialDrag.armed, testimonialDrag.dragIndex, testimonialDrag.overIndex, i)}`}
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-xs font-semibold text-light-grey truncate">{t.name}</p>

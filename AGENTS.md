@@ -118,7 +118,7 @@ app/
 ### Storefront
 | Component | File | Notes |
 |-----------|------|-------|
-| `Navbar` | `navbar.tsx` | Sticky top, desktop nav links centered, heart icon (wishlist) + cart icon on right, hamburger on mobile |
+| `PillNavbar` | `pill-navbar.tsx` | Sticky pill navbar, desktop nav links centered, heart icon (wishlist) + cart icon on right, hamburger on mobile |
 | `Footer` | `footer.tsx` | Site footer |
 | `ProductCard` | `product-card.tsx` | Grid card with image, size badge, cart icon button (adds to cart with toast), discount badge, price |
 | `AddToCartButton` | `add-to-cart-button.tsx` | Full-width button with cart SVG icon, "Added!" feedback |
@@ -178,7 +178,7 @@ ADMIN_EMAIL                     # Admin whitelist (not set yet)
 ## Known Issues & Notes
 
 1. **Next.js 16 breaking changes** — Read `node_modules/next/dist/docs/` before writing Next.js code
-2. **Lint broken** — `next lint` fails in this Next.js version
+2. **Lint** — use `npm run lint` (`eslint .`); `next lint` fails in this Next.js version. Many pre-existing `react-hooks/set-state-in-effect` warnings across the codebase
 3. **Pre-existing TS error** — `scatter-testimonial.tsx` line 143 `Property 'gradient'` (ignored)
 4. **Clerk not wired** — No `<ClerkProvider>` in root layout, no middleware, admin is unprotected
 5. **Razorpay keys empty** — Payments won't work until `.env` keys are set
@@ -208,7 +208,7 @@ ADMIN_EMAIL                     # Admin whitelist (not set yet)
 | Add to cart btn | `components/storefront/add-to-cart-button.tsx` |
 | Wishlist btn | `components/storefront/wishlist-button.tsx` |
 | Filter modal | `components/storefront/filter-modal.tsx` |
-| Navbar | `components/storefront/navbar.tsx` |
+| Navbar | `components/storefront/pill-navbar.tsx` |
 | Image zoom | `components/storefront/image-magnifier.tsx` |
 | Product form (admin) | `components/admin/product-form.tsx` |
 | Upload API | `app/api/upload/route.ts` |

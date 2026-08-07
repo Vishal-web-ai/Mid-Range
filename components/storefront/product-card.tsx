@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn, formatPrice } from "@/lib/utils";
@@ -14,36 +15,80 @@ export type ProductCardProps = {
   discountedPrice?: number;
   images: string[];
   size: string | null;
+  tag?: string | null;
   status: string;
   delay?: number;
 };
 
+const BURST_PARTICLES = Array.from({ length: 8 }, (_, i) => {
+  const angle = (i / 8) * Math.PI * 2;
+  const dist = 14 + (i % 3) * 3;
+  return {
+    x: `${Math.cos(angle) * dist}px`,
+    y: `${Math.sin(angle) * dist}px`,
+  };
+});
+
 function WishlistToggle({ product }: { product: WishlistProduct }) {
   const { isWished, toggle } = useWishlist();
   const wished = isWished(product.id);
+  const [anim, setAnim] = useState<"pop" | "squish" | null>(null);
+  const [burst, setBurst] = useState(false);
 
   function handleToggle(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    const wasWished = isWished(product.id);
     toggle(product.id, product);
+    if (wasWished) {
+      setAnim("squish");
+    } else {
+      setAnim("pop");
+      setBurst(true);
+    }
   }
+
+  const animClass =
+    anim === "pop"
+      ? "animate-heart-pop"
+      : anim === "squish"
+        ? "animate-heart-squish"
+        : "";
 
   return (
     <button
       type="button"
       onClick={handleToggle}
       aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-colors"
+      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-[background-color,transform] duration-200 hover:scale-110 active:scale-90"
     >
-      {wished ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-      ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-grey">
-          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-        </svg>
-      )}
+      <span
+        className={cn("relative flex h-4 w-4 items-center justify-center", animClass)}
+        onAnimationEnd={() => setAnim(null)}
+      >
+        {wished ? (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        ) : (
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-grey">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+        )}
+        {burst && (
+          <span
+            className="heart-burst"
+            onAnimationEnd={(e) => {
+              e.stopPropagation();
+              setBurst(false);
+            }}
+          >
+            {BURST_PARTICLES.map((p, i) => (
+              <i key={i} style={{ "--bx": p.x, "--by": p.y } as React.CSSProperties} />
+            ))}
+          </span>
+        )}
+      </span>
     </button>
   );
 }
@@ -56,6 +101,7 @@ export default function ProductCard({
   discountedPrice,
   images,
   size,
+  tag,
   status,
   delay = 0,
 }: ProductCardProps) {
@@ -89,9 +135,9 @@ export default function ProductCard({
             </div>
           )}
 
-          {size && !isSold && (
+          {tag && !isSold && (
             <span className="font-hero bg-signal-red text-light-grey absolute top-2 left-2 px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase">
-              {size}
+              {tag}
             </span>
           )}
 

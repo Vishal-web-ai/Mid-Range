@@ -158,7 +158,7 @@ export default function StaggeredMenu({
       <button
         type="button"
         onClick={onClose}
-        className={`absolute top-5 right-6 cursor-pointer bg-transparent border-0 p-1 transition-opacity duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] ${
+        className={`absolute top-5 right-6 cursor-pointer bg-transparent border-0 p-1 transition-opacity duration-300 ease-[cubic-bezier(0.33,1,0.68,1)] active:scale-90 ${
           showItems ? "opacity-100" : "opacity-0"
         }`}
         style={{ transitionDelay: showItems ? "200ms" : "0ms", zIndex: 11 }}
@@ -187,7 +187,7 @@ export default function StaggeredMenu({
               <Link
                 href={item.href}
                 onClick={onClose}
-                className={`block font-bold text-4xl sm:text-5xl uppercase tracking-tight no-underline transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] ${
+                className={`block font-bold text-4xl sm:text-5xl uppercase tracking-tight no-underline transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] hover:translate-x-2 active:scale-95 ${
                   showItems
                     ? "translate-y-0 opacity-100"
                     : "translate-y-8 opacity-0"

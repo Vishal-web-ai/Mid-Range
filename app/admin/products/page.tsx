@@ -8,7 +8,7 @@ export default async function AdminProductsPage() {
     orderBy: { createdAt: "desc" },
     select: {
       id: true, title: true, slug: true, price: true, discountedPrice: true,
-      size: true, category: true, condition: true, gender: true,
+      size: true, tag: true, category: true, condition: true, gender: true,
       details: true, specifications: true, images: true, status: true, createdAt: true,
     },
   });

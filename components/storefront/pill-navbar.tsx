@@ -14,6 +14,7 @@ export default function PillNavbar() {
   const [count, setCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const [entered, setEntered] = useState(false);
 
   useEffect(() => {
     setCount(getItemCount());
@@ -41,7 +42,12 @@ export default function PillNavbar() {
 
   return (
     <>
-      <nav className={`pill-navbar sticky top-0 z-50 w-full transition-transform duration-300 ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}>
+      <nav
+        className={`pill-navbar sticky top-0 z-50 w-full transition-transform duration-300 ${
+          !entered ? "animate-nav-in" : ""
+        } ${hidden && !menuOpen ? "-translate-y-full" : "translate-y-0"}`}
+        onAnimationEnd={() => setEntered(true)}
+      >
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
           <div className="pointer-events-none relative flex w-full items-center justify-between">
             <div
@@ -54,6 +60,7 @@ export default function PillNavbar() {
                 width={1536}
                 height={1024}
                 priority
+                unoptimized
                 className="h-[135px] w-auto lg:h-[250px]"
               />
             </div>
@@ -65,7 +72,7 @@ export default function PillNavbar() {
             <div className="pointer-events-auto flex shrink-0 items-center gap-[12px] sm:gap-[16px]">
             <Link
               href="/wishlist"
-              className="text-signal-red hidden items-center transition-colors hover:text-light-grey sm:flex"
+              className="nav-icon-link text-signal-red hidden items-center sm:flex"
               aria-label="Wishlist"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-[24px] w-[24px] sm:h-[28px] sm:w-[28px]">
@@ -75,14 +82,17 @@ export default function PillNavbar() {
 
             <Link
               href="/cart"
-              className="text-signal-red relative flex items-center transition-colors hover:text-light-grey"
+              className="nav-icon-link text-signal-red relative flex items-center"
               aria-label={`Cart (${count} items)`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-[24px] w-[24px] sm:h-[28px] sm:w-[28px]">
                 <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0020 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25z" />
               </svg>
               {count > 0 && (
-                  <span className="bg-signal-red font-hero text-light-grey absolute -top-1 -right-2 flex h-[20px] min-w-[20px] items-center justify-center rounded-full px-1 text-[11px] font-bold">
+                <span
+                  key={count}
+                  className="animate-badge-bump bg-signal-red font-hero text-light-grey absolute -top-1 -right-2 flex h-[20px] min-w-[20px] items-center justify-center rounded-full px-1 text-[11px] font-bold"
+                >
                   {count}
                 </span>
               )}
@@ -90,7 +100,7 @@ export default function PillNavbar() {
 
             <button
               type="button"
-              className="flex flex-col items-center justify-center gap-[3px] md:hidden"
+              className="hamburger-btn flex flex-col items-center justify-center gap-[3px] md:hidden"
               onClick={() => setMenuOpen((o) => !o)}
               aria-label="Toggle menu"
               aria-expanded={menuOpen}

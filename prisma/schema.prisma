@@ -13,6 +13,7 @@ model Product {
   price           Int      // stored in paise (smallest currency unit)
   discountedPrice Int?     // stored in paise
   size            String?  // numeric string e.g. "42"
+  tag             String?  // e.g. "sale", "new", or custom
   category        String?
   condition       String?  // rating 1/10 - 10/10
   gender          String?  // men | women

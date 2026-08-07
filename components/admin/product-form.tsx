@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { CATEGORIES } from "@/lib/categories";
 import { ImageUpload } from "./image-upload";
 import { CustomSelect } from "./custom-select";
 
@@ -12,6 +13,7 @@ interface Product {
   price: number;
   discountedPrice: number | null;
   size: string | null;
+  tag: string | null;
   category: string | null;
   condition: string | null;
   gender: string | null;
@@ -22,8 +24,8 @@ interface Product {
   createdAt: Date | string;
 }
 
-const CATEGORIES = ["Jackets", "Tops", "Bottoms", "Dresses", "Accessories"] as const;
 const RATINGS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
+const TAGS = ["Sale", "New"] as const;
 const SPEC_EXAMPLES = [
   { label: "Fit", value: "Oversized Fit" },
   { label: "Fabric", value: "100% Premium Cotton" },
@@ -47,6 +49,12 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
     product?.discountedPrice ? String(product.discountedPrice / 100) : "",
   );
   const [size, setSize] = useState(product?.size ?? "");
+  const [tag, setTag] = useState(
+    product?.tag && !TAGS.includes(product.tag as typeof TAGS[number]) ? "__custom" : (product?.tag ?? ""),
+  );
+  const [customTag, setCustomTag] = useState(
+    product?.tag && !TAGS.includes(product.tag as typeof TAGS[number]) ? product.tag : "",
+  );
   const [category, setCategory] = useState(product?.category ?? "");
   const [customCategory, setCustomCategory] = useState(
     product?.category && !CATEGORIES.includes(product.category as typeof CATEGORIES[number]) ? product.category : "",
@@ -90,6 +98,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
   }
 
   const effectiveCategory = category === "__custom" ? customCategory.trim() : category;
+  const effectiveTag = tag === "__custom" ? customTag.trim() : tag;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,6 +137,8 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
 
     if (discountedPaise) body.discountedPrice = discountedPaise;
     if (size.trim()) body.size = size.trim();
+    if (effectiveTag) body.tag = effectiveTag;
+    else if (isEdit) body.tag = null;
     if (effectiveCategory) body.category = effectiveCategory;
     if (condition) body.condition = condition;
     if (gender) body.gender = gender;
@@ -229,13 +240,37 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
           </label>
           <input
             id="size"
-            type="number"
-            min="0"
+            type="text"
             value={size}
             onChange={(e) => setSize(e.target.value)}
             className={inputClass}
-            placeholder="e.g. 42"
+            placeholder="e.g. 42 or M, L, XL"
           />
+        </div>
+
+        <div>
+          <label className="text-light-grey mb-1 block text-xs font-medium">
+            Tag
+          </label>
+          <CustomSelect
+            value={tag}
+            onChange={setTag}
+            placeholder="Select tag"
+            options={[
+              { label: "None", value: "" },
+              ...TAGS.map((t) => ({ label: t, value: t })),
+              { label: "Write your own...", value: "__custom", accent: true },
+            ]}
+          />
+          {tag === "__custom" && (
+            <input
+              type="text"
+              value={customTag}
+              onChange={(e) => setCustomTag(e.target.value)}
+              className={cn(inputClass, "mt-2")}
+              placeholder="Enter custom tag"
+            />
+          )}
         </div>
 
         <div>
@@ -278,7 +313,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
           placeholder="Select category"
           options={[
             ...CATEGORIES.map((c) => ({ label: c, value: c })),
-            { label: "Write your own...", value: "__custom" },
+            { label: "Write your own...", value: "__custom", accent: true },
           ]}
         />
         {category === "__custom" && (

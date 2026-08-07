@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { gsap } from "gsap";
+import { cn } from "@/lib/utils";
 import ProductCard from "@/components/storefront/product-card";
 import FilterModal from "@/components/storefront/filter-modal";
-import SortModal from "@/components/storefront/sort-modal";
+import SortModal, { SORT_OPTIONS } from "@/components/storefront/sort-modal";
 
 type Product = {
   id: string;
@@ -14,6 +16,7 @@ type Product = {
   discountedPrice?: number | null;
   images: string[];
   size: string | null;
+  tag?: string | null;
   status: string;
   category: string | null;
   condition: string | null;
@@ -21,20 +24,21 @@ type Product = {
 
 function sortProducts(products: Product[], sort: string): Product[] {
   const sorted = [...products];
+  const effective = (p: Product) => p.discountedPrice ?? p.price;
   switch (sort) {
     case "price-low":
-      return sorted.sort((a, b) => a.price - b.price);
+      return sorted.sort((a, b) => effective(a) - effective(b));
     case "price-high":
-      return sorted.sort((a, b) => b.price - a.price);
+      return sorted.sort((a, b) => effective(b) - effective(a));
     case "name-az":
       return sorted.sort((a, b) => a.title.localeCompare(b.title));
     case "name-za":
       return sorted.sort((a, b) => b.title.localeCompare(a.title));
     case "oldest":
-      return sorted;
+      return sorted.reverse();
     case "newest":
     default:
-      return sorted.reverse();
+      return sorted;
   }
 }
 
@@ -49,15 +53,39 @@ export default function CollectionGrid({
   sizes: string[];
   conditions: string[];
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const gridRef = useRef<HTMLDivElement>(null);
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 999900]);
-  const [sortBy, setSortBy] = useState("newest");
+  const readParam = (key: string) => {
+    const v = searchParams.get(key);
+    return v ? v.split(",").filter(Boolean) : [];
+  };
+
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => readParam("cat"));
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(() => readParam("size"));
+  const [selectedConditions, setSelectedConditions] = useState<string[]>(() => readParam("cond"));
+  const [priceRange, setPriceRange] = useState<[number, number]>(() => {
+    const minRaw = searchParams.get("min");
+    const maxRaw = searchParams.get("max");
+    const min = minRaw !== null ? Number(minRaw) : 0;
+    const max = maxRaw !== null ? Number(maxRaw) : 999900;
+    return [Number.isNaN(min) ? 0 : min, Number.isNaN(max) ? 999900 : max];
+  });
+  const [sortBy, setSortBy] = useState(() => searchParams.get("sort") ?? "newest");
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (selectedCategories.length > 0) params.set("cat", selectedCategories.join(","));
+    if (selectedSizes.length > 0) params.set("size", selectedSizes.join(","));
+    if (selectedConditions.length > 0) params.set("cond", selectedConditions.join(","));
+    if (priceRange[0] !== 0) params.set("min", String(priceRange[0]));
+    if (priceRange[1] !== 999900) params.set("max", String(priceRange[1]));
+    if (sortBy !== "newest") params.set("sort", sortBy);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [selectedCategories, selectedSizes, selectedConditions, priceRange, sortBy, router]);
 
   function toggleCategory(cat: string) {
     setSelectedCategories((prev) =>
@@ -153,13 +181,20 @@ export default function CollectionGrid({
         <button
           type="button"
           onClick={() => setSortOpen(true)}
-          className="font-hero bg-dark-grey text-light-grey border-steel-gray/30 flex items-center gap-2 border px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-colors hover:border-signal-red"
+          className={cn(
+            "font-hero flex items-center gap-2 border px-4 py-2 text-[10px] font-bold tracking-widest uppercase transition-colors",
+            sortBy !== "newest"
+              ? "bg-signal-red text-light-grey border-signal-red"
+              : "bg-dark-grey text-light-grey border-steel-gray/30 hover:border-signal-red",
+          )}
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="m3 16 4 4 4-4" /><path d="M7 20V4" />
             <path d="m21 8-4-4-4 4" /><path d="M17 4v16" />
           </svg>
-          Sort
+          {sortBy !== "newest"
+            ? (SORT_OPTIONS.find((o) => o.value === sortBy)?.label ?? "Sort")
+            : "Sort"}
         </button>
       </div>
 
@@ -213,6 +248,7 @@ export default function CollectionGrid({
                 discountedPrice={product.discountedPrice ?? undefined}
                 images={product.images}
                 size={product.size}
+                tag={product.tag}
                 status={product.status}
                 delay={i * 60}
               />

@@ -21,6 +21,7 @@ export default function Footer() {
                 alt="MidRange"
                 width={1118}
                 height={146}
+                unoptimized
                 className="h-auto w-80 sm:h-20 sm:w-auto md:h-24 lg:h-28"
               />
             </Link>

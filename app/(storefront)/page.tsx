@@ -221,7 +221,7 @@ async function ProductsSection() {
     where: { status: "available" }, orderBy: { createdAt: "desc" }, take: 8,
     select: {
       id: true, title: true, slug: true, price: true, discountedPrice: true,
-      images: true, size: true, status: true,
+      images: true, size: true, tag: true, status: true,
     },
   });
   return <ProductGrid products={products} />;

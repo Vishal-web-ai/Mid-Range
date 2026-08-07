@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import CollectionGrid from "@/components/storefront/collection-grid";
+import { CATEGORIES } from "@/lib/categories";
 
 interface Product {
   id: string;
@@ -11,6 +12,7 @@ interface Product {
   discountedPrice?: number | null;
   images: string[];
   size?: string | null;
+  tag?: string | null;
   status: string;
   category?: string | null;
   condition?: string | null;
@@ -23,7 +25,11 @@ interface Props {
 }
 
 export default function CollectionPageClient({ initialProducts, title, accentWord }: Props) {
-  const categories = useMemo(() => [...new Set(initialProducts.map((p) => p.category).filter(Boolean))] as string[], [initialProducts]);
+  const categories = useMemo(
+    () =>
+      [...new Set([...CATEGORIES, ...initialProducts.map((p) => p.category).filter(Boolean)])] as string[],
+    [initialProducts],
+  );
   const sizes = useMemo(() => [...new Set(initialProducts.map((p) => p.size).filter(Boolean))] as string[], [initialProducts]);
   const conditions = useMemo(() => [...new Set(initialProducts.map((p) => p.condition).filter(Boolean))] as string[], [initialProducts]);
 

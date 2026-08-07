@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   typescript: { ignoreBuildErrors: true },
   images: {
+    loader: "custom",
+    loaderFile: "./lib/images-loader.ts",
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {

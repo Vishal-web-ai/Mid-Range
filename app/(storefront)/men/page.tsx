@@ -21,6 +21,7 @@ export default async function MenPage() {
       discountedPrice: true,
       images: true,
       size: true,
+      tag: true,
       status: true,
       category: true,
       condition: true,

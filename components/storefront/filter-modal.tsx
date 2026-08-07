@@ -28,13 +28,38 @@ const PRICE_RANGES: { label: string; range: [number, number] }[] = [
   { label: "₹2,000+", range: [200000, 999900] },
 ];
 
-const NUMERIC_SIZES = ["28", "30", "32", "34", "36", "38", "40"];
+const NUMERIC_SIZES = ["28", "30", "32", "34", "36", "38", "40", "42"];
+const LETTER_SIZES = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
 const CONDITION_OPTIONS = ["1/10", "2/10", "3/10", "4/10", "5/10", "6/10", "7/10", "8/10", "9/10", "10/10"];
+
+function SizeTag({
+  size,
+  selected,
+  onClick,
+}: {
+  size: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
+        selected ? "bg-[#E53935] text-white" : "bg-[#222] text-steel-gray"
+      )}
+    >
+      {size}
+    </button>
+  );
+}
 
 export default function FilterModal({
   open,
   onClose,
   categories,
+  sizes,
   selectedCategories,
   selectedSizes,
   selectedConditions,
@@ -47,7 +72,7 @@ export default function FilterModal({
   activeCount,
 }: FilterModalProps) {
   return (
-    <BottomSheet open={open} onClose={onClose} title="Filters">
+    <BottomSheet open={open} onClose={onClose} title="Filters" className="bg-[#0D0D0D]">
       <div className="flex flex-col gap-6">
 
         {categories.length > 0 && (
@@ -64,8 +89,8 @@ export default function FilterModal({
                   className={cn(
                     "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
                     selectedCategories.includes(cat)
-                      ? "bg-signal-red text-light-grey"
-                      : "bg-dark-grey text-steel-gray hover:text-light-grey"
+                      ? "bg-[#E53935] text-white"
+                      : "bg-[#222] text-steel-gray"
                   )}
                 >
                   {cat}
@@ -79,23 +104,62 @@ export default function FilterModal({
           <h3 className="font-hero text-signal-red mb-3 text-xs font-bold tracking-widest uppercase">
             Size
           </h3>
-          <div className="flex flex-wrap gap-2">
-            {NUMERIC_SIZES.map((sz) => (
-              <button
-                key={sz}
-                type="button"
-                onClick={() => onToggleSize(sz)}
-                className={cn(
-                  "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
-                  selectedSizes.includes(sz)
-                    ? "bg-signal-red text-light-grey"
-                    : "bg-dark-grey text-steel-gray hover:text-light-grey"
-                )}
-              >
-                {sz}
-              </button>
-            ))}
+
+          <div className="mb-2">
+            <p className="text-white/50 mb-2 text-[10px] font-bold tracking-widest uppercase">
+              Numeric
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[...new Set([...NUMERIC_SIZES, ...sizes.filter((s) => /^\d+$/.test(s))])].map((sz) => (
+                <SizeTag
+                  key={sz}
+                  size={sz}
+                  selected={selectedSizes.includes(sz)}
+                  onClick={() => onToggleSize(sz)}
+                />
+              ))}
+            </div>
           </div>
+
+          <div className="mb-2">
+            <p className="text-white/50 mb-2 text-[10px] font-bold tracking-widest uppercase">
+              Letter
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {[...new Set([...LETTER_SIZES, ...sizes.filter((s) => /^[a-zA-Z]+$/.test(s))])].map((sz) => (
+                <SizeTag
+                  key={sz}
+                  size={sz}
+                  selected={selectedSizes.includes(sz)}
+                  onClick={() => onToggleSize(sz)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {sizes.some((s) => !/^[0-9a-zA-Z]+$/.test(s) && s.trim() !== "" && s.toLowerCase() !== "free size") && (
+            <div>
+              <p className="text-white/50 mb-2 text-[10px] font-bold tracking-widest uppercase">
+                Other
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[...new Set(sizes.filter((s) => !/^[0-9a-zA-Z]+$/.test(s) && s.trim() !== "" && s.toLowerCase() !== "free size"))].map((sz) => (
+                  <SizeTag
+                    key={sz}
+                    size={sz}
+                    selected={selectedSizes.includes(sz)}
+                    onClick={() => onToggleSize(sz)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <SizeTag
+            size="Free Size"
+            selected={selectedSizes.includes("Free Size")}
+            onClick={() => onToggleSize("Free Size")}
+          />
         </div>
 
         <div>
@@ -103,21 +167,21 @@ export default function FilterModal({
             Condition
           </h3>
           <div className="flex flex-wrap gap-2">
-            {CONDITION_OPTIONS.map((cond) => (
-              <button
-                key={cond}
-                type="button"
-                onClick={() => onToggleCondition(cond)}
-                className={cn(
-                  "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
-                  selectedConditions.includes(cond)
-                    ? "bg-signal-red text-light-grey"
-                    : "bg-dark-grey text-steel-gray hover:text-light-grey"
-                )}
-              >
-                {cond}
-              </button>
-            ))}
+              {CONDITION_OPTIONS.map((cond) => (
+                <button
+                  key={cond}
+                  type="button"
+                  onClick={() => onToggleCondition(cond)}
+                  className={cn(
+                    "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
+                    selectedConditions.includes(cond)
+                      ? "bg-[#E53935] text-white"
+                      : "bg-[#222] text-steel-gray"
+                  )}
+                >
+                  {cond}
+                </button>
+              ))}
           </div>
         </div>
 
@@ -126,27 +190,27 @@ export default function FilterModal({
             Price
           </h3>
           <div className="flex flex-wrap gap-2">
-            {PRICE_RANGES.map((r) => (
-              <button
-                key={r.label}
-                type="button"
-                onClick={() =>
-                  onPriceRangeChange(
+              {PRICE_RANGES.map((r) => (
+                <button
+                  key={r.label}
+                  type="button"
+                  onClick={() =>
+                    onPriceRangeChange(
+                      priceRange[0] === r.range[0] && priceRange[1] === r.range[1]
+                        ? [0, 999900]
+                        : r.range
+                    )
+                  }
+                  className={cn(
+                    "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
                     priceRange[0] === r.range[0] && priceRange[1] === r.range[1]
-                      ? [0, 999900]
-                      : r.range
-                  )
-                }
-                className={cn(
-                  "font-hero px-3 py-1.5 text-xs font-bold tracking-wider uppercase transition-colors",
-                  priceRange[0] === r.range[0] && priceRange[1] === r.range[1]
-                    ? "bg-signal-red text-light-grey"
-                    : "bg-dark-grey text-steel-gray hover:text-light-grey"
-                )}
-              >
-                {r.label}
-              </button>
-            ))}
+                      ? "bg-[#E53935] text-white"
+                      : "bg-[#222] text-steel-gray"
+                  )}
+                >
+                  {r.label}
+                </button>
+              ))}
           </div>
         </div>
 

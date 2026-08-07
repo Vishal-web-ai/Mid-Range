@@ -14,6 +14,7 @@ interface Product {
   price: number;
   discountedPrice: number | null;
   size: string | null;
+  tag: string | null;
   category: string | null;
   condition: string | null;
   gender: string | null;
@@ -139,6 +140,7 @@ export function ProductList({ products }: { products: Product[] }) {
               <th className="p-3">Title</th>
               <th className="p-3">Price</th>
               <th className="p-3">Size</th>
+              <th className="p-3">Tag</th>
               <th className="p-3">Category</th>
               <th className="p-3">Status</th>
               <th className="p-3">Actions</th>
@@ -147,7 +149,7 @@ export function ProductList({ products }: { products: Product[] }) {
           <tbody>
             {products.length === 0 && (
               <tr>
-                <td colSpan={7} className="text-steel-gray p-8 text-center">
+                <td colSpan={8} className="text-steel-gray p-8 text-center">
                   No products yet.
                 </td>
               </tr>
@@ -184,6 +186,15 @@ export function ProductList({ products }: { products: Product[] }) {
                   )}
                 </td>
                 <td className="text-light-grey p-3">{p.size ?? "\u2014"}</td>
+                <td className="p-3">
+                  {p.tag ? (
+                    <span className="bg-signal-red/20 text-signal-red inline-block rounded px-2 py-0.5 text-xs font-medium">
+                      {p.tag}
+                    </span>
+                  ) : (
+                    <span className="text-steel-gray">{"\u2014"}</span>
+                  )}
+                </td>
                 <td className="text-light-grey p-3">
                   {p.category ?? "\u2014"}
                   {p.gender && <span className="text-steel-gray"> / {p.gender}</span>}
@@ -278,6 +289,11 @@ export function ProductList({ products }: { products: Product[] }) {
                 <p className="text-light-grey text-sm">{formatPrice(p.price)}</p>
               )}
               <div className="text-steel-gray mt-1 flex flex-wrap items-center gap-2 text-xs">
+                {p.tag && (
+                  <span className="bg-signal-red/20 text-signal-red rounded px-1.5 py-0.5 font-medium">
+                    {p.tag}
+                  </span>
+                )}
                 {p.size && <span>{p.size}</span>}
                 {p.category && <span>{p.category}</span>}
                 {p.gender && <span>{p.gender}</span>}

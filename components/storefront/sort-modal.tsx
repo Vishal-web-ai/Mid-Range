@@ -3,7 +3,7 @@
 import BottomSheet from "@/components/ui/bottom-sheet";
 import { cn } from "@/lib/utils";
 
-const SORT_OPTIONS = [
+export const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "oldest", label: "Oldest First" },
   { value: "price-low", label: "Price: Low to High" },

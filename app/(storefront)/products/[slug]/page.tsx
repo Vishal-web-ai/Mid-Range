@@ -48,7 +48,7 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
       <div className="w-full px-4 sm:px-6 lg:px-10">
         <div className="flex flex-col gap-8 md:flex-row md:gap-4">
           <ScrollReveal className="w-full md:w-1/2">
-            <ProductImageGallery images={product.images} title={product.title} />
+            <ProductImageGallery images={product.images} title={product.title} tag={product.tag} />
           </ScrollReveal>
 
           <ScrollReveal delay={100} className="w-full md:w-1/2">

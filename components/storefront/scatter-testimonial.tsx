@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ScrollReveal from "@/components/ui/scroll-reveal";
 import { isLowEndDevice } from "@/lib/device-capabilities";
 import ProductImageLightbox from "@/components/storefront/product-image-lightbox";
+import { getOptimizedUrl } from "@/lib/cloudinary-utils";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -457,7 +458,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                   {(t.photos ?? []).slice(0, 2).map((src, pi) => (
                     <div key={src} className="relative h-10 w-10 overflow-hidden rounded-md max-[321px]:h-8 max-[321px]:w-8 sm:h-12 sm:w-12">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt={`${t.name} review photo ${pi + 1}`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                      <img src={getOptimizedUrl(src, 200)} alt={`${t.name} review photo ${pi + 1}`} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                   ))}
                   {(t.photos ?? []).length > 2 && (
@@ -475,7 +476,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                   className={`${t.avatarBg} relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full text-[11px] font-bold text-white`}
                 >
                   {t.imageUrl ? (
-                    <img src={t.imageUrl} alt={t.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
+                    <img src={getOptimizedUrl(t.imageUrl, 100)} alt={t.name} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                   ) : (
                     t.avatar
                   )}
@@ -564,7 +565,7 @@ export default function ScatterTestimonial({ initialTestimonials }: { initialTes
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={selected.photos![photoIndex]}
+                            src={getOptimizedUrl(selected.photos![photoIndex], 1200)}
                             alt={`${selected.name} review photo ${photoIndex + 1}`}
                             loading="lazy"
                             decoding="async"

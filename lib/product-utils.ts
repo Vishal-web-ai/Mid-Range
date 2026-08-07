@@ -9,6 +9,7 @@ const PRODUCT_SELECT = {
   discountedPrice: true,
   images: true,
   size: true,
+  tag: true,
   status: true,
   category: true,
   condition: true,
