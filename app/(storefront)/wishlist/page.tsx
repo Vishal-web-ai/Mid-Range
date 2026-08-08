@@ -10,16 +10,16 @@ export default function WishlistPage() {
   const { ready, items, toggle } = useWishlist();
 
   return (
-    <main className="py-8 sm:py-12">
+    <main className="pt-4 pb-8 sm:pt-6 sm:pb-12">
       <div className="container-wide">
-        <h1 className="font-hero text-light-grey mb-2 text-3xl font-bold tracking-wider uppercase sm:text-5xl">
+        <h1 className="font-hero text-light-grey mb-2 text-center text-3xl font-bold tracking-wider uppercase sm:text-5xl">
           My <span className="text-signal-red">Wishlist</span>
         </h1>
 
         {!ready ? (
           <div className="mt-8">
             <div className="bg-dark-grey mb-8 h-4 w-16 animate-pulse rounded" />
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i}>
                   <div className="bg-dark-grey aspect-[3/4] animate-pulse rounded-lg" />
@@ -47,10 +47,7 @@ export default function WishlistPage() {
           </div>
         ) : (
           <>
-            <p className="text-steel-gray mb-8 text-sm font-semibold">
-              {items.length} {items.length === 1 ? "item" : "items"} in your cart
-            </p>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5 lg:gap-4 xl:grid-cols-6">
               {items.map((item) => {
                 const p = item.product;
                 return (
@@ -61,7 +58,7 @@ export default function WishlistPage() {
                         src={p.images[0] || "/placeholder.png"}
                         alt={p.title}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {p.discountedPrice && (
@@ -97,7 +94,8 @@ export default function WishlistPage() {
                           discountedPrice={p.discountedPrice}
                           image={p.images[0] || "/placeholder.png"}
                           size={p.size}
-                          className="flex-1 min-w-0"
+                          className="flex-1 min-w-0 sm:!px-3 sm:!py-2 sm:!text-xs sm:[&_svg]:!h-4 sm:[&_svg]:!w-4"
+                          showIcon={false}
                         />
                       )}
                       <button

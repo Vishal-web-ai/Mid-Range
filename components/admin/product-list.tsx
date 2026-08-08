@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn, formatPrice } from "@/lib/utils";
 import { ProductForm } from "./product-form";
+import { ProductEditModal } from "./product-edit-modal";
 import ConfirmDialog from "./confirm-dialog";
 
 interface Product {
@@ -21,6 +22,7 @@ interface Product {
   details: string[];
   specifications: { label: string; value: string }[];
   images: string[];
+  video: string | null;
   status: string;
   createdAt: Date | string;
 }
@@ -29,6 +31,7 @@ export function ProductList({ products }: { products: Product[] }) {
   const router = useRouter();
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [editTarget, setEditTarget] = useState<Product | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
 
@@ -155,7 +158,11 @@ export function ProductList({ products }: { products: Product[] }) {
               </tr>
             )}
             {products.map((p) => (
-              <tr key={p.id} className="border-steel-gray/50 border-b last:border-0">
+              <tr
+                key={p.id}
+                onClick={() => setEditTarget(p)}
+                className="border-steel-gray/50 hover:bg-ink-black/50 cursor-pointer border-b transition-colors last:border-0"
+              >
                 <td className="p-3">
                   {p.images[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -214,34 +221,30 @@ export function ProductList({ products }: { products: Product[] }) {
                 <td className="p-3">
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => {
-                        setEditing(p);
-                        setShowForm(true);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkSold(p.id);
                       }}
                       disabled={loading === p.id}
-                      className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                      className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                     >
-                      Edit
+                      Sold
                     </button>
-                    {p.status === "available" ? (
-                      <button
-                        onClick={() => handleMarkSold(p.id)}
-                        disabled={loading === p.id}
-                        className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                      >
-                        Sold
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleMarkAvailable(p.id)}
-                        disabled={loading === p.id}
-                        className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                      >
-                        Unsold
-                      </button>
-                    )}
                     <button
-                      onClick={() => setDeleteTarget(p)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleMarkAvailable(p.id);
+                      }}
+                      disabled={loading === p.id}
+                      className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                    >
+                      Unsold
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteTarget(p);
+                      }}
                       disabled={loading === p.id}
                       className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                     >
@@ -263,7 +266,11 @@ export function ProductList({ products }: { products: Product[] }) {
           </p>
         )}
         {products.map((p) => (
-          <div key={p.id} className="border-steel-gray bg-dark-grey flex gap-3 rounded border p-3">
+          <div
+            key={p.id}
+            onClick={() => setEditTarget(p)}
+            className="border-steel-gray bg-dark-grey hover:border-signal-red/50 flex cursor-pointer gap-3 rounded border p-3 transition-colors"
+          >
             {p.images[0] ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -309,19 +316,12 @@ export function ProductList({ products }: { products: Product[] }) {
                 </span>
               </div>
               <div className="mt-2 flex items-center gap-3">
-                <button
-                  onClick={() => {
-                    setEditing(p);
-                    setShowForm(true);
-                  }}
-                  disabled={loading === p.id}
-                  className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                >
-                  Edit
-                </button>
                 {p.status === "available" ? (
                   <button
-                    onClick={() => handleMarkSold(p.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMarkSold(p.id);
+                    }}
                     disabled={loading === p.id}
                     className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                   >
@@ -329,7 +329,10 @@ export function ProductList({ products }: { products: Product[] }) {
                   </button>
                 ) : (
                   <button
-                    onClick={() => handleMarkAvailable(p.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleMarkAvailable(p.id);
+                    }}
                     disabled={loading === p.id}
                     className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                   >
@@ -337,7 +340,10 @@ export function ProductList({ products }: { products: Product[] }) {
                   </button>
                 )}
                 <button
-                  onClick={() => setDeleteTarget(p)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteTarget(p);
+                  }}
                   disabled={loading === p.id}
                   className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                 >
@@ -348,6 +354,18 @@ export function ProductList({ products }: { products: Product[] }) {
           </div>
         ))}
       </div>
+
+      {/* Edit modal */}
+      {editTarget && (
+        <ProductEditModal
+          product={editTarget}
+          onClose={() => setEditTarget(null)}
+          onSaved={() => {
+            setEditTarget(null);
+            router.refresh();
+          }}
+        />
+      )}
 
       {/* Delete confirmation modal */}
       <ConfirmDialog

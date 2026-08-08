@@ -26,6 +26,7 @@ export function CustomSelect({ value, onChange, options, placeholder = "Select..
   }, []);
 
   const selected = options.find((o) => o.value === value);
+  const hasValue = selected !== undefined || value !== "";
 
   return (
     <div ref={ref} className={cn("relative", className)}>
@@ -37,10 +38,10 @@ export function CustomSelect({ value, onChange, options, placeholder = "Select..
           open
             ? "border-signal-red bg-ink-black"
             : "border-steel-gray bg-ink-black hover:border-light-grey",
-          selected ? "text-light-grey" : "text-steel-gray",
+          hasValue ? "text-light-grey" : "text-steel-gray",
         )}
       >
-        <span className="truncate">{selected?.label ?? placeholder}</span>
+        <span className="truncate">{selected?.label ?? value ?? placeholder}</span>
         <svg
           className={cn("ml-2 h-4 w-4 shrink-0 transition-transform", open && "rotate-180")}
           fill="none"

@@ -16,6 +16,7 @@ const PRODUCT_SELECT = {
   gender: true,
   details: true,
   specifications: true,
+  video: true,
 } as const;
 
 export const getProductBySlug = unstable_cache(

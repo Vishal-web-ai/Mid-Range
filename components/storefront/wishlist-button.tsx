@@ -1,6 +1,7 @@
 "use client";
 
 import { useWishlist, type WishlistProduct } from "@/lib/wishlist-context";
+import { useButtonEffects } from "@/components/ui/use-button-effects";
 
 interface WishlistButtonProps {
   productId: string;
@@ -9,13 +10,18 @@ interface WishlistButtonProps {
 
 export function WishlistButton({ productId, product }: WishlistButtonProps) {
   const { isWished, toggle } = useWishlist();
+  const effects = useButtonEffects();
   const wished = isWished(productId);
 
   return (
     <button
       type="button"
-      onClick={() => toggle(productId, product)}
-      className="flex w-full items-center justify-center gap-2 rounded bg-white px-4 py-3 text-sm font-semibold tracking-wider text-ink-black uppercase transition-colors hover:bg-light-grey"
+      onClick={(e) => {
+        effects.onClick(e);
+        toggle(productId, product);
+      }}
+      onPointerDown={effects.onPointerDown}
+      className="btn-sweep flex w-full items-center justify-center gap-2 rounded bg-white px-4 py-3 text-sm font-semibold tracking-wider text-ink-black uppercase transition-colors hover:bg-light-grey [--sweep-color:rgba(225,29,46,0.18)] [--ripple-color:rgba(225,29,46,0.25)]"
     >
       {wished ? (
         <>

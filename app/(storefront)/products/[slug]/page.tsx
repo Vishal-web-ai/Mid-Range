@@ -49,6 +49,17 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
         <div className="flex flex-col gap-8 md:flex-row md:gap-4">
           <ScrollReveal className="w-full md:w-1/2">
             <ProductImageGallery images={product.images} title={product.title} tag={product.tag} />
+            {product.video && (
+              <div className="mt-4">
+                <video
+                  src={product.video}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="bg-dark-grey aspect-video w-full rounded-lg"
+                />
+              </div>
+            )}
           </ScrollReveal>
 
           <ScrollReveal delay={100} className="w-full md:w-1/2">

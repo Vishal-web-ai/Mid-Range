@@ -37,13 +37,29 @@ export default function ConfirmDialog({
   }, [open, loading, onClose]);
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevOverflow = html.style.overflow;
+    const prevPosition = body.style.position;
+    const prevTop = body.style.top;
+    const prevWidth = body.style.width;
+    const scrollY = window.scrollY;
+
     if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
+      html.style.overflow = "hidden";
+      body.style.position = "fixed";
+      body.style.top = `-${scrollY}px`;
+      body.style.width = "100%";
     }
+
     return () => {
-      document.body.style.overflow = "";
+      if (open) {
+        html.style.overflow = prevOverflow;
+        body.style.position = prevPosition;
+        body.style.top = prevTop;
+        body.style.width = prevWidth;
+        window.scrollTo(0, scrollY);
+      }
     };
   }, [open]);
 

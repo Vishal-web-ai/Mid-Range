@@ -51,7 +51,7 @@ export default function PillNavbar() {
         <div className="container-storefront relative flex h-[56px] items-center sm:h-[64px]">
           <div className="pointer-events-none relative flex w-full items-center justify-between">
             <div
-              className="pointer-events-none relative z-10 flex shrink-0 items-center max-[769px]:-ml-[2.5em] min-[1440px]:-ml-[7em]"
+              className="pointer-events-none relative z-10 flex shrink-0 items-center max-[769px]:-ml-[2.5em] min-[770px]:max-[1439px]:-ml-[3em] min-[1440px]:-ml-[7em]"
               aria-label="MidRange"
             >
               <Image
@@ -65,7 +65,7 @@ export default function PillNavbar() {
               />
             </div>
 
-            <div className="pointer-events-auto hidden items-center md:flex lg:-ml-[3em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
+            <div className="pointer-events-auto hidden items-center md:flex lg:-ml-[12em] lg:relative max-lg:absolute max-lg:left-1/2 max-lg:-translate-x-1/2">
               <PillNavLinks />
             </div>
 
@@ -82,6 +82,7 @@ export default function PillNavbar() {
 
             <Link
               href="/cart"
+              data-cart-icon
               className="nav-icon-link text-signal-red relative flex items-center"
               aria-label={`Cart (${count} items)`}
             >

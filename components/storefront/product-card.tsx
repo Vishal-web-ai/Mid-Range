@@ -20,12 +20,15 @@ export type ProductCardProps = {
   delay?: number;
 };
 
+const BURST_COLORS = ["#E11D2E", "#D8D8D6", "#FF6B6B", "#F5A623", "#FF8FA3", "#E11D2E", "#F5A623", "#D8D8D6"];
+
 const BURST_PARTICLES = Array.from({ length: 8 }, (_, i) => {
   const angle = (i / 8) * Math.PI * 2;
   const dist = 14 + (i % 3) * 3;
   return {
     x: `${Math.cos(angle) * dist}px`,
     y: `${Math.sin(angle) * dist}px`,
+    color: BURST_COLORS[i],
   };
 });
 
@@ -60,18 +63,18 @@ function WishlistToggle({ product }: { product: WishlistProduct }) {
       type="button"
       onClick={handleToggle}
       aria-label={wished ? "Remove from wishlist" : "Add to wishlist"}
-      className="bg-ink-black/50 hover:bg-ink-black/80 absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full transition-[background-color,transform] duration-200 hover:scale-110 active:scale-90"
+      className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center transition-transform duration-200 hover:scale-110 active:scale-90"
     >
       <span
-        className={cn("relative flex h-4 w-4 items-center justify-center", animClass)}
+        className={cn("relative flex h-5 w-5 items-center justify-center", animClass)}
         onAnimationEnd={() => setAnim(null)}
       >
         {wished ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="text-signal-red">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-light-grey">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-signal-red">
             <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
           </svg>
         )}
@@ -84,7 +87,7 @@ function WishlistToggle({ product }: { product: WishlistProduct }) {
             }}
           >
             {BURST_PARTICLES.map((p, i) => (
-              <i key={i} style={{ "--bx": p.x, "--by": p.y } as React.CSSProperties} />
+              <i key={i} style={{ "--bx": p.x, "--by": p.y, "--pc": p.color } as React.CSSProperties} />
             ))}
           </span>
         )}

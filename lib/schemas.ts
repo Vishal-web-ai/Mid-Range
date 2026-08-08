@@ -33,6 +33,7 @@ export const ProductSchema = z.object({
     )
     .optional(),
   images: z.array(z.string().url()).min(1, "At least one image required"),
+  video: z.string().url().nullable().optional(),
   status: z.enum(["available", "sold"]).default("available"),
 });
 

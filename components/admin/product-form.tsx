@@ -4,6 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/categories";
 import { ImageUpload } from "./image-upload";
+import { VideoUpload } from "./video-upload";
 import { CustomSelect } from "./custom-select";
 
 interface Product {
@@ -20,6 +21,7 @@ interface Product {
   details: string[];
   specifications: { label: string; value: string }[];
   images: string[];
+  video: string | null;
   status: string;
   createdAt: Date | string;
 }
@@ -69,6 +71,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
   const [imageUrls, setImageUrls] = useState<string[]>(
     product?.images?.length ? [...product.images] : [""],
   );
+  const [videoUrl, setVideoUrl] = useState(product?.video ?? "");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -134,6 +137,9 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
       images: trimmedUrls,
       specifications: specifications.length > 0 ? specifications : undefined,
     };
+
+    if (videoUrl.trim()) body.video = videoUrl.trim();
+    else if (isEdit) body.video = null;
 
     if (discountedPaise) body.discountedPrice = discountedPaise;
     if (size.trim()) body.size = size.trim();
@@ -409,6 +415,14 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         >
           + Add another image
         </button>
+      </div>
+
+      {/* Video */}
+      <div>
+        <label className="text-light-grey mb-1 block text-xs font-medium">
+          Short Video (optional)
+        </label>
+        <VideoUpload value={videoUrl} onChange={setVideoUrl} />
       </div>
 
       {/* Actions */}

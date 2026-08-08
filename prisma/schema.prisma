@@ -20,6 +20,7 @@ model Product {
   details         String[] // product detail bullet points
   specifications  Json[]   @default([]) // [{ label, value }] spec sheet entries
   images          String[] // array of image URLs
+  video           String?  // optional short video URL (Cloudinary)
   status          String   @default("available") // available | sold
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

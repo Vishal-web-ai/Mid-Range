@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
         .upload_stream(
           {
             folder: "midrange",
-            resource_type: "image",
+            resource_type: "auto",
           },
           (error, result) => {
             if (error) reject(error);
