@@ -6,11 +6,21 @@ import { cn } from "@/lib/utils";
 interface VideoUploadProps {
   value: string;
   onChange: (url: string) => void;
+  onUploaded?: (url: string) => void;
   className?: string;
 }
 
-export function VideoUpload({ value, onChange, className }: VideoUploadProps) {
+function deleteAsset(url: string) {
+  fetch("/api/upload/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url }),
+  }).catch(() => {});
+}
+
+export function VideoUpload({ value, onChange, onUploaded, className }: VideoUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const uploadedRef = useRef<Set<string>>(new Set());
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -46,7 +56,13 @@ export function VideoUpload({ value, onChange, className }: VideoUploadProps) {
       }
 
       const { url } = await res.json();
+      const previous = value;
       onChange(url);
+      uploadedRef.current.add(url);
+      onUploaded?.(url);
+      if (previous && uploadedRef.current.has(previous)) {
+        deleteAsset(previous);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -87,7 +103,13 @@ export function VideoUpload({ value, onChange, className }: VideoUploadProps) {
             </button>
             <button
               type="button"
-              onClick={() => onChange("")}
+              onClick={() => {
+                const current = value;
+                onChange("");
+                if (current && uploadedRef.current.has(current)) {
+                  deleteAsset(current);
+                }
+              }}
               disabled={uploading}
               className="rounded bg-signal-red/80 px-2 py-1 text-xs text-white backdrop-blur-sm transition-colors hover:bg-signal-red"
             >

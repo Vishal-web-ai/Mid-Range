@@ -73,13 +73,43 @@ export default function CheckoutPage() {
     setSubmitting(true);
 
     try {
-      const res = await fetch("/api/razorpay/create-order", {
+      const orderRes = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: total }),
+        body: JSON.stringify({
+          buyerName: form.fullName,
+          buyerPhone: form.phone,
+          buyerAddress: form.address,
+          items: items.map((item) => ({
+            productId: item.id,
+            price: item.discountedPrice ?? item.price,
+          })),
+        }),
       });
 
-      if (!res.ok) throw new Error("Payment failed");
+      if (!orderRes.ok) throw new Error("Failed to place order");
+      const order = await orderRes.json();
+
+      const rzRes = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: total, receipt: order.id }),
+      });
+
+      if (!rzRes.ok) throw new Error("Payment failed");
+      const rzOrder = await rzRes.json();
+
+      const verifyRes = await fetch("/api/razorpay/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          razorpay_order_id: rzOrder.id,
+          razorpay_payment_id: `pay_stub_${order.id}`,
+          razorpay_signature: "stub",
+        }),
+      });
+
+      if (!verifyRes.ok) throw new Error("Payment failed");
 
       clearCart();
       router.push("/order-confirmation");

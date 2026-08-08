@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { CATEGORIES } from "@/lib/categories";
 import { ImageUpload } from "./image-upload";
@@ -75,13 +75,25 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const uploadedRef = useRef<Set<string>>(new Set());
+
+  function deleteUploaded(url: string) {
+    if (!uploadedRef.current.has(url)) return;
+    fetch("/api/upload/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    }).catch(() => {});
+  }
 
   function addImageField() {
     setImageUrls((prev) => [...prev, ""]);
   }
 
   function removeImageField(index: number) {
+    const removed = imageUrls[index];
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
+    deleteUploaded(removed);
   }
 
   function updateImageUrl(index: number, value: string) {
@@ -387,7 +399,11 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {imageUrls.map((url, i) => (
             <div key={i} className="relative">
-              <ImageUpload value={url} onChange={(newUrl) => updateImageUrl(i, newUrl)} />
+              <ImageUpload
+                value={url}
+                onChange={(newUrl) => updateImageUrl(i, newUrl)}
+                onUploaded={(newUrl) => uploadedRef.current.add(newUrl)}
+              />
               {imageUrls.length > 1 && (
                 <button
                   type="button"
@@ -422,7 +438,7 @@ export function ProductForm({ product, onSaved }: ProductFormProps) {
         <label className="text-light-grey mb-1 block text-xs font-medium">
           Short Video (optional)
         </label>
-        <VideoUpload value={videoUrl} onChange={setVideoUrl} />
+        <VideoUpload value={videoUrl} onChange={setVideoUrl} onUploaded={(url) => uploadedRef.current.add(url)} />
       </div>
 
       {/* Actions */}

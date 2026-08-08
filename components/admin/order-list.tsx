@@ -67,6 +67,20 @@ export function OrderList({ orders }: { orders: Order[] }) {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this order? Its products will be marked available again.")) return;
+    setLoading(id);
+    try {
+      const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed");
+      router.refresh();
+    } catch {
+      alert("Failed to delete order");
+    } finally {
+      setLoading(null);
+    }
+  }
+
   if (orders.length === 0) {
     return (
       <p className="border-steel-gray bg-dark-grey text-steel-gray rounded border p-8 text-center">
@@ -133,6 +147,13 @@ export function OrderList({ orders }: { orders: Order[] }) {
                         Deliver
                       </button>
                     )}
+                    <button
+                      onClick={() => handleDelete(order.id)}
+                      disabled={loading === order.id}
+                      className="text-red-800 hover:text-red-400 text-xs transition-colors disabled:opacity-50"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -195,6 +216,13 @@ export function OrderList({ orders }: { orders: Order[] }) {
                   Mark Delivered
                 </button>
               )}
+              <button
+                onClick={() => handleDelete(order.id)}
+                disabled={loading === order.id}
+                className="text-red-800 hover:text-red-400 text-xs transition-colors disabled:opacity-50"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}

@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { RazorpayOrderSchema } from "@/lib/schemas";
 
 export async function POST(request: NextRequest) {
@@ -14,9 +15,17 @@ export async function POST(request: NextRequest) {
     }
 
     const { amount, receipt } = parsed.data;
+    const id = `order_stub_${Math.random().toString(36).substring(2, 10)}`;
+
+    if (receipt) {
+      await prisma.order.update({
+        where: { id: receipt },
+        data: { razorpayOrderId: id },
+      });
+    }
 
     return Response.json({
-      id: `order_stub_${Math.random().toString(36).substring(2, 10)}`,
+      id,
       amount,
       currency: "INR",
       receipt: receipt ?? null,

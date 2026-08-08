@@ -10,12 +10,18 @@ export function getOptimizedUrl(url: string, width: number): string {
   return url.replace("/upload/", `/upload/${transformation}/`);
 }
 
+function getSquareUrl(url: string, size: number): string {
+  if (!isCloudinaryUrl(url)) return url;
+  const transformation = `f_auto,q_auto,w_${size},h_${size},c_fill,g_auto`;
+  return url.replace("/upload/", `/upload/${transformation}/`);
+}
+
 export function getThumbnailUrl(url: string): string {
-  return getOptimizedUrl(url, 200);
+  return getSquareUrl(url, 200);
 }
 
 export function getMediumUrl(url: string): string {
-  return getOptimizedUrl(url, 800);
+  return getSquareUrl(url, 800);
 }
 
 export function getFullUrl(url: string): string {

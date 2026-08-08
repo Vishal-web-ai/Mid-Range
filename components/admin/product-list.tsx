@@ -34,6 +34,7 @@ export function ProductList({ products }: { products: Product[] }) {
   const [editTarget, setEditTarget] = useState<Product | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Product | null>(null);
+  const [tick, setTick] = useState(false);
 
   async function handleDelete(id: string) {
     setLoading(id);
@@ -51,44 +52,14 @@ export function ProductList({ products }: { products: Product[] }) {
     }
   }
 
-  async function handleMarkSold(id: string) {
-    setLoading(id);
-    try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "sold" }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      router.refresh();
-    } catch {
-      alert("Failed to update status");
-    } finally {
-      setLoading(null);
-    }
-  }
-
-  async function handleMarkAvailable(id: string) {
-    setLoading(id);
-    try {
-      const res = await fetch(`/api/products/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "available" }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      router.refresh();
-    } catch {
-      alert("Failed to update status");
-    } finally {
-      setLoading(null);
-    }
-  }
-
   function handleSaved() {
-    setEditing(null);
-    setShowForm(false);
-    router.refresh();
+    setTick(true);
+    setTimeout(() => {
+      setTick(false);
+      setEditing(null);
+      setShowForm(false);
+      router.refresh();
+    }, 1300);
   }
 
   return (
@@ -223,30 +194,10 @@ export function ProductList({ products }: { products: Product[] }) {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleMarkSold(p.id);
-                      }}
-                      disabled={loading === p.id}
-                      className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                    >
-                      Sold
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleMarkAvailable(p.id);
-                      }}
-                      disabled={loading === p.id}
-                      className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                    >
-                      Unsold
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
                         setDeleteTarget(p);
                       }}
                       disabled={loading === p.id}
-                      className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
+                      className="bg-signal-red/20 hover:bg-signal-red/30 text-signal-red rounded px-2.5 py-1 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
                     >
                       Delete
                     </button>
@@ -269,8 +220,21 @@ export function ProductList({ products }: { products: Product[] }) {
           <div
             key={p.id}
             onClick={() => setEditTarget(p)}
-            className="border-steel-gray bg-dark-grey hover:border-signal-red/50 flex cursor-pointer gap-3 rounded border p-3 transition-colors"
+            className="border-steel-gray bg-dark-grey hover:border-signal-red/50 relative flex cursor-pointer gap-3 rounded border p-3 transition-colors"
           >
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteTarget(p);
+              }}
+              disabled={loading === p.id}
+              aria-label="Delete product"
+              className="text-signal-red hover:bg-signal-red/10 absolute top-1.5 right-1.5 z-10 flex h-7 w-7 items-center justify-center rounded transition-colors disabled:opacity-50"
+            >
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
             {p.images[0] ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -284,7 +248,14 @@ export function ProductList({ products }: { products: Product[] }) {
               </div>
             )}
             <div className="min-w-0 flex-1">
-              <p className="text-light-grey truncate font-medium">{p.title}</p>
+              <div className="flex items-center gap-2 pr-8">
+                <p className="text-light-grey min-w-0 truncate font-medium">{p.title}</p>
+                {p.tag && (
+                  <span className="bg-signal-red/20 text-signal-red max-w-[30%] shrink-0 truncate rounded px-1.5 py-0.5 text-[10px] font-medium">
+                    {p.tag}
+                  </span>
+                )}
+              </div>
               {p.discountedPrice != null ? (
                 <p className="text-sm">
                   <span className="text-steel-gray line-through">{formatPrice(p.price)}</span>{" "}
@@ -296,11 +267,6 @@ export function ProductList({ products }: { products: Product[] }) {
                 <p className="text-light-grey text-sm">{formatPrice(p.price)}</p>
               )}
               <div className="text-steel-gray mt-1 flex flex-wrap items-center gap-2 text-xs">
-                {p.tag && (
-                  <span className="bg-signal-red/20 text-signal-red rounded px-1.5 py-0.5 font-medium">
-                    {p.tag}
-                  </span>
-                )}
                 {p.size && <span>{p.size}</span>}
                 {p.category && <span>{p.category}</span>}
                 {p.gender && <span>{p.gender}</span>}
@@ -314,41 +280,6 @@ export function ProductList({ products }: { products: Product[] }) {
                 >
                   {p.status.charAt(0).toUpperCase() + p.status.slice(1)}
                 </span>
-              </div>
-              <div className="mt-2 flex items-center gap-3">
-                {p.status === "available" ? (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleMarkSold(p.id);
-                    }}
-                    disabled={loading === p.id}
-                    className="text-red-800 hover:text-red-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                  >
-                    Sold
-                  </button>
-                ) : (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleMarkAvailable(p.id);
-                    }}
-                    disabled={loading === p.id}
-                    className="text-green-700 hover:text-green-400 font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                  >
-                    Unsold
-                  </button>
-                )}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDeleteTarget(p);
-                  }}
-                  disabled={loading === p.id}
-                  className="text-light-grey hover:text-steel-gray font-semibold text-xs sm:text-sm transition-colors disabled:opacity-50"
-                >
-                  Delete
-                </button>
               </div>
             </div>
           </div>
@@ -406,6 +337,26 @@ export function ProductList({ products }: { products: Product[] }) {
           This will permanently delete the product. This action cannot be undone.
         </p>
       </ConfirmDialog>
+
+      {/* Saved tick overlay */}
+      {tick && (
+        <div className="fixed inset-0 z-[10000] flex flex-col items-center justify-center gap-4 bg-black/80">
+          <div className="animate-check-pop bg-green-500 flex h-24 w-24 items-center justify-center rounded-full shadow-lg shadow-green-500/40">
+            <svg
+              className="check-draw h-12 w-12 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </div>
+          <p className="text-light-grey text-sm font-medium tracking-wide uppercase">Saved</p>
+        </div>
+      )}
     </div>
   );
 }
